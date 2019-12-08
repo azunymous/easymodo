@@ -81,11 +81,11 @@ func createDirectory() {
 		log.Fatalf("Could not read local directory %v", err)
 	}
 
-	if os.IsExist(err) && stat.IsDir() {
+	if err == nil && stat.IsDir() {
 		log.Warnf("Platform directory %s already exists", directory)
 	}
 
-	err = os.MkdirAll("./platform/base", 0755)
+	err = os.MkdirAll(filepath.Join("./", directory, "base"), 0755)
 
 	log.Infof("Creating directory %s", directory)
 
