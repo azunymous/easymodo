@@ -26,50 +26,44 @@ var directory string
 var imageName string
 var port int
 var protocol string
+var ingress string
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
 
 	initCmd.Flags().StringVarP(&directory, "directory", "d", "platform", "directory for kustomization files and folders")
 	initCmd.Flags().StringVarP(&imageName, "imageName", "i", "", "Set image name")
 	initCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
 	initCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	initCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
 }
 
-func initCommand(_ *cobra.Command, args []string) {
+func initCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := resources.NewFileMap()
 
-	appName := args[0]
-
 	app := input.Application{
-		Name:          appName,
+		Name:          args[0],
 		Stateful:      false,
-		ImageName:     useDefault(appName, imageName) + ":latest",
-		ContainerName: appName,
+		ImageName:     useDefault(args[0], imageName) + ":latest",
+		ContainerName: args[0],
 		ContainerPort: port,
 		Protocol:      "TCP",
+		Host:          ingress,
 	}
 
 	log.Infof("initializing current directory for application %s", app.Name)
 
 	createDirectory()
 
-	createBase(app, resourceFiles, kustomization.Generators())
-	createKustomization(resourceFiles.GetResources(), resourceFiles)
-	writeBaseFiles(resourceFiles)
-	basePath := filepath.Join("../", directory, "base", "kustomization.yaml")
+	createBase(app, resourceFiles, kustomization.Generators(cmd.Flags().Changed("ingress")))
+	createKustomization(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
+	writeFiles(resourceFiles, "base")
+	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")
 
 	resourceFiles = resources.NewFileMap()
-	resourceFiles.Add(basePath, "")
+	res := []string{relativeBasePath}
+	createKustomization(input.NewKustomization(res, app.Name+"-dev"), resourceFiles)
+	writeFiles(resourceFiles, "dev")
 
 }
 
@@ -109,17 +103,18 @@ func createBase(app input.Application, files resources.Files, generators []kusto
 	}
 }
 
-func createKustomization(resources []string, files *resources.FileMap) {
+func createKustomization(resources *input.Kustomization, files *resources.FileMap) {
 	err := kustomization.GenerateKustomization(resources, files)
 	if err != nil {
 		log.Fatalf("Could not create kustomization.yaml: %v", err)
 	}
 }
 
-func writeBaseFiles(files resources.Files) {
+func writeFiles(files resources.Files, subDir string) {
 	wd, _ := os.Getwd()
 	_ = os.Chdir(directory)
-	_ = os.Chdir("base")
+	_ = os.Mkdir(subDir, 0755)
+	_ = os.Chdir(subDir)
 	_ = files.Write()
 
 	_ = os.Chdir(wd)

@@ -8,9 +8,9 @@ func Kustomization() *template.Template {
 	kustomization :=
 		`apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
+{{if $namespace := .Namespace}}namespace: {{$namespace}}{{end}}
 resources:
-{{range $key, $value := . }}- {{$value}}
+{{range $key, $value := .Res }}- {{$value}}
 {{end}}
 `
 

@@ -7,4 +7,5 @@ type Application struct {
 	ContainerName string
 	ContainerPort int
 	Protocol      string
+	Host          string
 }

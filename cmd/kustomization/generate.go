@@ -25,9 +25,9 @@ func Generate(resourceName string, template *template.Template) Generator {
 	}
 }
 
-func GenerateKustomization(resources []string, files resources.Files) error {
+func GenerateKustomization(kustomization *input.Kustomization, files resources.Files) error {
 	content := strings.Builder{}
-	err := Kustomization().Execute(&content, resources)
+	err := Kustomization().Execute(&content, kustomization)
 
 	if err != nil {
 		return errors.Wrap(err, "Could not create kustomization.yaml")
@@ -38,9 +38,15 @@ func GenerateKustomization(resources []string, files resources.Files) error {
 
 }
 
-func Generators() []Generator {
-	return []Generator{
+func Generators(ingressEnabled bool) []Generator {
+	generators := []Generator{
 		Generate("deployment", Deployment()),
 		Generate("service", Service()),
 	}
+
+	if ingressEnabled {
+		generators = append(generators, Generate("ingress", Ingress()))
+	}
+
+	return generators
 }
