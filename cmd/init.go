@@ -62,17 +62,9 @@ func initCommand(_ *cobra.Command, args []string) {
 
 	createDirectory()
 	createBase(app, resourceFiles, kustomization.Generators())
-
-	log.Fatal(kustomization.GenerateKustomization(resourceFiles))
+	createKustomization(resourceFiles)
 
 	writeBaseFiles(resourceFiles)
-
-}
-
-func writeBaseFiles(files resources.Files) {
-	_ = os.Chdir(directory)
-	_ = os.Chdir("base")
-	_ = files.Write()
 }
 
 func useDefault(def string, flag string) string {
@@ -80,15 +72,6 @@ func useDefault(def string, flag string) string {
 		return def
 	}
 	return flag
-}
-
-func createBase(app input.Application, files resources.Files, generators []kustomization.Generator) {
-	for _, generate := range generators {
-		err := generate(app, files)
-		if err != nil {
-			log.Fatalf("Could not create resource %v", err)
-		}
-	}
 }
 
 func createDirectory() {
@@ -109,4 +92,26 @@ func createDirectory() {
 	if err != nil {
 		log.Fatalf("Cannot create platform directory %s %v", err)
 	}
+}
+
+func createBase(app input.Application, files resources.Files, generators []kustomization.Generator) {
+	for _, generate := range generators {
+		err := generate(app, files)
+		if err != nil {
+			log.Fatalf("Could not create resource %v", err)
+		}
+	}
+}
+
+func createKustomization(files *resources.FileMap) {
+	err := kustomization.GenerateKustomization(files)
+	if err != nil {
+		log.Fatalf("Could not create kustomization.yaml: %v", err)
+	}
+}
+
+func writeBaseFiles(files resources.Files) {
+	_ = os.Chdir(directory)
+	_ = os.Chdir("base")
+	_ = files.Write()
 }
