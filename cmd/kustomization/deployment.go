@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: {{.ContainerName}}
-          image: {{.ImageName}}
+          image: {{.Image}}
           ports:
             - containerPort: {{.ContainerPort}}
 `

@@ -23,7 +23,7 @@ deploying locally.`,
 }
 
 var directory string
-var imageName string
+var imageUri string
 var port int
 var protocol string
 var ingress string
@@ -32,7 +32,7 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 
 	initCmd.Flags().StringVarP(&directory, "directory", "d", "platform", "directory for kustomization files and folders")
-	initCmd.Flags().StringVarP(&imageName, "imageName", "i", "", "Set image name")
+	initCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
 	initCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
 	initCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
 	initCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
@@ -44,7 +44,7 @@ func initCommand(cmd *cobra.Command, args []string) {
 	app := input.Application{
 		Name:          args[0],
 		Stateful:      false,
-		ImageName:     useDefault(args[0], imageName) + ":latest",
+		Image:         useDefault(args[0]+":latest", imageUri),
 		ContainerName: args[0],
 		ContainerPort: port,
 		Protocol:      "TCP",
