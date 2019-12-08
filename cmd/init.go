@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
+	"path/filepath"
 )
 
 // initCmd represents the init command
@@ -61,10 +62,15 @@ func initCommand(_ *cobra.Command, args []string) {
 	log.Infof("initializing current directory for application %s", app.Name)
 
 	createDirectory()
-	createBase(app, resourceFiles, kustomization.Generators())
-	createKustomization(resourceFiles)
 
+	createBase(app, resourceFiles, kustomization.Generators())
+	createKustomization(resourceFiles.GetResources(), resourceFiles)
 	writeBaseFiles(resourceFiles)
+	basePath := filepath.Join("../", directory, "base", "kustomization.yaml")
+
+	resourceFiles = resources.NewFileMap()
+	resourceFiles.Add(basePath, "")
+
 }
 
 func useDefault(def string, flag string) string {
@@ -103,15 +109,18 @@ func createBase(app input.Application, files resources.Files, generators []kusto
 	}
 }
 
-func createKustomization(files *resources.FileMap) {
-	err := kustomization.GenerateKustomization(files)
+func createKustomization(resources []string, files *resources.FileMap) {
+	err := kustomization.GenerateKustomization(resources, files)
 	if err != nil {
 		log.Fatalf("Could not create kustomization.yaml: %v", err)
 	}
 }
 
 func writeBaseFiles(files resources.Files) {
+	wd, _ := os.Getwd()
 	_ = os.Chdir(directory)
 	_ = os.Chdir("base")
 	_ = files.Write()
+
+	_ = os.Chdir(wd)
 }

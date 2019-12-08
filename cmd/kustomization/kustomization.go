@@ -10,7 +10,7 @@ func Kustomization() *template.Template {
 kind: Kustomization
 
 resources:
-{{range $key, $value := . }}- {{$key}}
+{{range $key, $value := . }}- {{$value}}
 {{end}}
 `
 

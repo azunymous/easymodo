@@ -25,9 +25,9 @@ func Generate(resourceName string, template *template.Template) Generator {
 	}
 }
 
-func GenerateKustomization(files resources.Files) error {
+func GenerateKustomization(resources []string, files resources.Files) error {
 	content := strings.Builder{}
-	err := Kustomization().Execute(&content, files.Get())
+	err := Kustomization().Execute(&content, resources)
 
 	if err != nil {
 		return errors.Wrap(err, "Could not create kustomization.yaml")

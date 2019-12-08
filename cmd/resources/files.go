@@ -8,7 +8,6 @@ import (
 type Files interface {
 	Add(string, string)
 	Write() error
-	Get() map[string]string
 }
 
 type FileMap struct {
@@ -25,6 +24,10 @@ func (f *FileMap) Add(fileName, content string) {
 
 func (f *FileMap) Write() error {
 	for fileName, content := range f.files {
+		if content == "" {
+			continue
+		}
+
 		f, err := os.Create(fileName)
 
 		if err != nil {
@@ -41,6 +44,10 @@ func (f *FileMap) Write() error {
 	return nil
 }
 
-func (f *FileMap) Get() map[string]string {
-	return f.files
+func (f *FileMap) GetResources() []string {
+	fileNames := make([]string, 0, len(f.files))
+	for name := range f.files {
+		fileNames = append(fileNames, name)
+	}
+	return fileNames
 }
