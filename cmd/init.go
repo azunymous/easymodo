@@ -5,10 +5,13 @@ import (
 	"github.com/azunymous/easymodo/cmd/kustomization"
 	"github.com/azunymous/easymodo/cmd/resources"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"os"
+	"path"
 	"path/filepath"
 )
+
+var appFs = afero.NewOsFs()
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -40,7 +43,6 @@ func init() {
 
 func initCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := resources.NewFileMap()
-
 	app := input.Application{
 		Name:          args[0],
 		Stateful:      false,
@@ -75,22 +77,22 @@ func useDefault(def string, flag string) string {
 }
 
 func createDirectory() {
-	stat, err := os.Stat(directory)
+	_, err := appFs.Stat(directory)
+	dirExists, err := afero.DirExists(appFs, directory)
 
-	if err != nil && !os.IsNotExist(err) {
+	if dirExists {
+		log.Warnf("Platform directory %s already exists", directory)
+
+	} else if err != nil {
 		log.Fatalf("Could not read local directory %v", err)
 	}
 
-	if err == nil && stat.IsDir() {
-		log.Warnf("Platform directory %s already exists", directory)
-	}
-
-	err = os.MkdirAll(filepath.Join("./", directory, "base"), 0755)
+	err = appFs.MkdirAll(filepath.Join("./", directory, "base"), 0755)
 
 	log.Infof("Creating directory %s", directory)
 
 	if err != nil {
-		log.Fatalf("Cannot create platform directory %s %v", err)
+		log.Fatalf("Cannot create platform directory %s %v", directory, err)
 	}
 }
 
@@ -111,11 +113,7 @@ func createKustomization(resources *input.Kustomization, files *resources.FileMa
 }
 
 func writeFiles(files resources.Files, subDir string) {
-	wd, _ := os.Getwd()
-	_ = os.Chdir(directory)
-	_ = os.Mkdir(subDir, 0755)
-	_ = os.Chdir(subDir)
-	_ = files.Write()
+	_ = appFs.Mkdir(path.Join(directory, subDir), 0755)
 
-	_ = os.Chdir(wd)
+	_ = files.Write(appFs, directory, subDir)
 }

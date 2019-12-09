@@ -2,12 +2,13 @@ package resources
 
 import (
 	log "github.com/sirupsen/logrus"
-	"os"
+	"github.com/spf13/afero"
+	"path"
 )
 
 type Files interface {
 	Add(string, string)
-	Write() error
+	Write(filesystem afero.Fs, dir, subDir string) error
 }
 
 type FileMap struct {
@@ -22,13 +23,13 @@ func (f *FileMap) Add(fileName, content string) {
 	f.files[fileName] = content
 }
 
-func (f *FileMap) Write() error {
+func (f *FileMap) Write(appFs afero.Fs, dir, subDir string) error {
 	for fileName, content := range f.files {
 		if content == "" {
 			continue
 		}
 
-		f, err := os.Create(fileName)
+		f, err := appFs.Create(path.Join(dir, subDir, fileName))
 
 		if err != nil {
 			log.Fatalf("Could not create %s file: %v", fileName, err)
