@@ -14,6 +14,7 @@ import (
 )
 
 var cfgFile string
+var directory string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -36,6 +37,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.easymodo.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&directory, "directory", "d", "platform", "directory for kustomization files and folders")
 }
 
 // initConfig reads in config file and ENV variables if set.

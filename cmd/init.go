@@ -22,10 +22,9 @@ directory. Defaults to creating a base and an overlay for
 deploying locally.`,
 	Run:     initCommand,
 	Args:    cobra.MinimumNArgs(1),
-	Aliases: []string{"create", "generate"},
+	Aliases: []string{"base", "generate"},
 }
 
-var directory string
 var imageUri string
 var port int
 var protocol string
@@ -34,7 +33,6 @@ var ingress string
 func init() {
 	rootCmd.AddCommand(initCmd)
 
-	initCmd.Flags().StringVarP(&directory, "directory", "d", "platform", "directory for kustomization files and folders")
 	initCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
 	initCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
 	initCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
@@ -60,13 +58,6 @@ func initCommand(cmd *cobra.Command, args []string) {
 	createBase(app, resourceFiles, kustomization.Generators(cmd.Flags().Changed("ingress")))
 	createKustomization(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
 	writeFiles(resourceFiles, "base")
-	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")
-
-	resourceFiles = resources.NewFileMap()
-	res := []string{relativeBasePath}
-	createKustomization(input.NewKustomization(res, app.Name+"-dev"), resourceFiles)
-	writeFiles(resourceFiles, "dev")
-
 }
 
 func useDefault(def string, flag string) string {

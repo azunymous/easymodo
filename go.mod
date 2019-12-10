@@ -3,6 +3,7 @@ module github.com/azunymous/easymodo
 go 1.13
 
 require (
+	github.com/ghodss/yaml v1.0.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.8.0
 	github.com/sirupsen/logrus v1.2.0
