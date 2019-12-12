@@ -42,14 +42,20 @@ func add(cmd *cobra.Command, args []string) {
 	}
 
 	var namespace string
-	var dir string
+	var nsDir string
 
 	if flagNamespace == "" {
 		namespace = input.GetAppName(appFs, directory) + "-" + suffix
-		dir = suffix
+		nsDir = suffix
 	} else {
 		namespace = flagNamespace
-		dir = flagNamespace
+		nsDir = flagNamespace
+	}
+
+	exists, err = afero.DirExists(appFs, path.Join(directory, nsDir))
+
+	if err == nil && exists {
+		log.Fatalf("%s directory (%s) already exists", nsDir, path.Join(directory, nsDir))
 	}
 
 	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")
@@ -66,5 +72,5 @@ func add(cmd *cobra.Command, args []string) {
 	}
 
 	createKustomization(input.NewKustomization(res, namespace), resourceFiles)
-	writeFiles(resourceFiles, dir)
+	writeFiles(resourceFiles, nsDir)
 }
