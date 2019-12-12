@@ -1,18 +1,18 @@
 package kustomization
 
 import (
+	"github.com/azunymous/easymodo/cmd/fs"
 	"github.com/azunymous/easymodo/cmd/input"
-	"github.com/azunymous/easymodo/cmd/resources"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"text/template"
 )
 
-type Generator func(input.Application, resources.Files) error
+type Generator func(input.Application, fs.Files) error
 
 func Generate(resourceName string, template *template.Template) Generator {
-	return func(app input.Application, files resources.Files) error {
+	return func(app input.Application, files fs.Files) error {
 		content := strings.Builder{}
 		err := template.Execute(&content, app)
 
@@ -25,7 +25,7 @@ func Generate(resourceName string, template *template.Template) Generator {
 	}
 }
 
-func GenerateKustomization(kustomization *input.Kustomization, files resources.Files) error {
+func generateKustomization(kustomization *input.Kustomization, files fs.Files) error {
 	content := strings.Builder{}
 	err := Kustomization().Execute(&content, kustomization)
 
@@ -36,6 +36,13 @@ func GenerateKustomization(kustomization *input.Kustomization, files resources.F
 	files.Add("kustomization.yaml", content.String())
 	return nil
 
+}
+
+func Create(resources *input.Kustomization, files *fs.FileMap) {
+	err := generateKustomization(resources, files)
+	if err != nil {
+		log.Fatalf("Could not create kustomization.yaml: %v", err)
+	}
 }
 
 func Generators(ingressEnabled bool) []Generator {

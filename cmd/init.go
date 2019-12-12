@@ -1,25 +1,21 @@
 package cmd
 
 import (
+	"github.com/azunymous/easymodo/cmd/fs"
 	"github.com/azunymous/easymodo/cmd/input"
 	"github.com/azunymous/easymodo/cmd/kustomization"
-	"github.com/azunymous/easymodo/cmd/resources"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"path"
 	"path/filepath"
 )
-
-var appFs = afero.NewOsFs()
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init [application name]",
-	Short: "Generate kustomize YAML",
-	Long: `Generates kustomization files in the ./platform
-directory. Defaults to creating a base and an overlay for
-deploying locally.`,
+	Short: "Define base kustomize YAML",
+	Long: `Generates base kustomization files for the given application name. 
+Defaults to creating a base in the platform directory.`,
 	Run:     newInitCommand,
 	Args:    cobra.MinimumNArgs(1),
 	Aliases: []string{"base", "generate"},
@@ -40,7 +36,7 @@ func init() {
 }
 
 func newInitCommand(cmd *cobra.Command, args []string) {
-	resourceFiles := resources.NewFileMap()
+	resourceFiles := fs.NewFileMap()
 	app := input.Application{
 		Name:          args[0],
 		Stateful:      false,
@@ -56,8 +52,9 @@ func newInitCommand(cmd *cobra.Command, args []string) {
 	createDirectory()
 
 	createBase(app, resourceFiles, kustomization.Generators(cmd.Flags().Changed("ingress")))
-	createKustomization(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
-	writeFiles(resourceFiles, "base")
+	kustomization.Create(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
+
+	fs.WriteAll(resourceFiles, input.Directory(), "base")
 }
 
 func useDefault(def string, flag string) string {
@@ -68,43 +65,30 @@ func useDefault(def string, flag string) string {
 }
 
 func createDirectory() {
-	_, err := appFs.Stat(directory)
-	dirExists, err := afero.DirExists(appFs, directory)
+	_, err := fs.Get().Stat(input.Directory())
+	dirExists, err := afero.DirExists(fs.Get(), input.Directory())
 
 	if dirExists {
-		log.Warnf("Platform directory %s already exists", directory)
+		log.Warnf("Platform directory %s already exists", input.Directory())
 
 	} else if err != nil {
 		log.Fatalf("Could not read local directory %v", err)
 	}
 
-	err = appFs.MkdirAll(filepath.Join("./", directory, "base"), 0755)
+	err = fs.Get().MkdirAll(filepath.Join("./", input.Directory(), "base"), 0755)
 
-	log.Infof("Creating directory %s", directory)
+	log.Infof("Creating directory %s", input.Directory())
 
 	if err != nil {
-		log.Fatalf("Cannot create platform directory %s %v", directory, err)
+		log.Fatalf("Cannot create platform directory %s %v", input.Directory(), err)
 	}
 }
 
-func createBase(app input.Application, files resources.Files, generators []kustomization.Generator) {
+func createBase(app input.Application, files fs.Files, generators []kustomization.Generator) {
 	for _, generate := range generators {
 		err := generate(app, files)
 		if err != nil {
 			log.Fatalf("Could not create resource %v", err)
 		}
 	}
-}
-
-func createKustomization(resources *input.Kustomization, files *resources.FileMap) {
-	err := kustomization.GenerateKustomization(resources, files)
-	if err != nil {
-		log.Fatalf("Could not create kustomization.yaml: %v", err)
-	}
-}
-
-func writeFiles(files resources.Files, subDir string) {
-	_ = appFs.Mkdir(path.Join(directory, subDir), 0755)
-
-	_ = files.Write(appFs, directory, subDir)
 }
