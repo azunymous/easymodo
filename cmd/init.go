@@ -20,7 +20,7 @@ var initCmd = &cobra.Command{
 	Long: `Generates kustomization files in the ./platform
 directory. Defaults to creating a base and an overlay for
 deploying locally.`,
-	Run:     initCommand,
+	Run:     newInitCommand,
 	Args:    cobra.MinimumNArgs(1),
 	Aliases: []string{"base", "generate"},
 }
@@ -39,7 +39,7 @@ func init() {
 	initCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
 }
 
-func initCommand(cmd *cobra.Command, args []string) {
+func newInitCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := resources.NewFileMap()
 	app := input.Application{
 		Name:          args[0],

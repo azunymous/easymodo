@@ -12,13 +12,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// addCmd represents the add command
+// addCmd represents the newAddCommand command
 var addCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add namespaced overlay on top of a kustomize base",
 	Long: `Creates an overlay kustomization from the base using
 a namespace formed of the [app name]-[suffix].`,
-	Run:  add,
+	Run:  newAddCommand,
 	Args: cobra.MaximumNArgs(0),
 }
 
@@ -34,7 +34,7 @@ func init() {
 
 	addCmd.Flags().BoolVarP(&nsResource, "resource", "r", false, "Create namespace resource")
 }
-func add(cmd *cobra.Command, args []string) {
+func newAddCommand(cmd *cobra.Command, args []string) {
 	exists, err := afero.DirExists(appFs, path.Join(directory, "base"))
 
 	if err != nil || !exists {
