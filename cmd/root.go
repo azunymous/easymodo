@@ -6,7 +6,6 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/azunymous/easymodo/cmd/input"
 	"github.com/spf13/cobra"
 	"os"
 
@@ -38,7 +37,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.easymodo.yaml)")
-	rootCmd.PersistentFlags().StringVarP(input.DirectoryFlag(), "directory", "d", "platform", "directory for kustomization files and folders")
+	rootCmd.PersistentFlags().StringVarP(DirectoryFlag(), "directory", "d", "platform", "directory for kustomization files and folders")
 }
 
 // initConfig reads in config file and ENV variables if set.

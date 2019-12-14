@@ -23,12 +23,12 @@ kustomization options via flags`,
 func init() {
 	rootCmd.AddCommand(overlayCmd)
 
-	overlayCmd.PersistentFlags().StringToStringVarP(input.ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
+	overlayCmd.PersistentFlags().StringToStringVarP(ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
 
 	// Shared with add command
-	overlayCmd.PersistentFlags().StringVarP(input.SuffixFlag(), "suffix", "s", "dev", "Suffix to use for namespace for overlay")
-	overlayCmd.PersistentFlags().StringVarP(input.NamespaceFlag(), "namespace", "n", "", "Specify a full namespace instead of using a suffix")
-	overlayCmd.Flags().BoolVarP(input.NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
+	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "dev", "Suffix to use for namespace for overlay")
+	overlayCmd.PersistentFlags().StringVarP(NamespaceFlag(), "namespace", "n", "", "Specify a full namespace instead of using a suffix")
+	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 
 func overlayCommand(cmd *cobra.Command, args []string) {
@@ -36,14 +36,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 
 	// TODO remove below duplicated code between add and overlay
-	appName := input.GetAppName(fs.Get(), input.Directory())
-	namespace := appName + "-" + input.Suffix()
-	nsDir := input.Suffix()
-
-	if cmd.Flags().Changed("namespace") {
-		namespace = input.Namespace()
-		nsDir = input.Namespace()
-	}
+	appName, namespace, nsDir := appNameAndNamespaceFromFlags(cmd)
 
 	k := input.Kustomization{
 		Res:       []string{},
@@ -61,7 +54,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")
 	k.AddResource(relativeBasePath)
 
-	if input.NamespaceResource() {
+	if NamespaceResource() {
 		err := kustomization.Generate("namespace", kustomization.Namespace())(input.Application{Namespace: namespace}, resourceFiles)
 		if err != nil {
 			log.Warnf("Could not create namespace: %v", err)
@@ -70,7 +63,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	if len(input.ConfigFiles()) > 0 {
+	if len(ConfigFiles()) > 0 {
 		err := kustomization.Generate("deployment-config-patch", kustomization.DeploymentConfigPatch())(application, resourceFiles)
 		if err != nil {
 			log.Fatalf("could not create deployment patch with given config file: %v", err)
@@ -78,7 +71,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 
 		k.AddPatch("deployment-config-patch.yaml")
 
-		for fileName, content := range input.ConfigFiles() {
+		for fileName, content := range ConfigFiles() {
 			resourceFiles.Add(fileName, content)
 			k.AddConfig(appName+"-config", fileName)
 		}
@@ -86,6 +79,19 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	}
 
 	kustomization.Create(&k, resourceFiles)
-	fs.WriteAll(resourceFiles, input.Directory(), nsDir)
+	resourceFiles.WriteAll(Directory(), nsDir)
 
+}
+
+// appNameAndNamespace returns the app name, namespace and the namespace directory in that order.
+func appNameAndNamespaceFromFlags(cmd *cobra.Command) (string, string, string) {
+	appName := input.GetAppName(fs.Get(), Directory())
+	namespace := appName + "-" + Suffix()
+	nsDir := Suffix()
+
+	if cmd.Flags().Changed("namespace") {
+		namespace = Namespace()
+		nsDir = Namespace()
+	}
+	return appName, namespace, nsDir
 }

@@ -1,4 +1,4 @@
-package input
+package cmd
 
 var global = Flags{
 	force: false,

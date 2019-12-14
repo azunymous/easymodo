@@ -1,3 +1,4 @@
+// Package input provides the structs for transforming templates into Kubernetes/Kustomize resource files.
 package input
 
 import (

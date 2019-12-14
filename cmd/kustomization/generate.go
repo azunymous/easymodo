@@ -1,3 +1,10 @@
+/*
+Package kustomization provides the go templates for generating Kubernetes and Kustomize resource
+files. It provides utility functions for generating files and adding them to a given file map.
+
+For example, after creating a file map use a generator to execute a template and add it to the
+files map.
+*/
 package kustomization
 
 import (
@@ -11,6 +18,7 @@ import (
 
 type Generator func(input.Application, fs.Files) error
 
+// Generate returns a function which, when called, will execute the template and add it to the files map.
 func Generate(resourceName string, template *template.Template) Generator {
 	return func(app input.Application, files fs.Files) error {
 		content := strings.Builder{}
@@ -25,26 +33,6 @@ func Generate(resourceName string, template *template.Template) Generator {
 	}
 }
 
-func generateKustomization(kustomization *input.Kustomization, files fs.Files) error {
-	content := strings.Builder{}
-	err := Kustomization().Execute(&content, kustomization)
-
-	if err != nil {
-		return errors.Wrap(err, "Could not create kustomization.yaml")
-	}
-	log.Info(content.String())
-	files.Add("kustomization.yaml", content.String())
-	return nil
-
-}
-
-func Create(resources *input.Kustomization, files *fs.FileMap) {
-	err := generateKustomization(resources, files)
-	if err != nil {
-		log.Fatalf("Could not create kustomization.yaml: %v", err)
-	}
-}
-
 func BaseGenerators(ingressEnabled bool) []Generator {
 	generators := []Generator{
 		Generate("deployment", Deployment()),
@@ -56,4 +44,16 @@ func BaseGenerators(ingressEnabled bool) []Generator {
 	}
 
 	return generators
+}
+
+func Create(kustomization *input.Kustomization, files fs.Files) {
+	content := strings.Builder{}
+	err := Kustomization().Execute(&content, kustomization)
+
+	if err != nil {
+		log.Fatalf("Could not create kustomization.yaml: %v", err)
+	}
+	log.Info(content.String())
+	files.Add("kustomization.yaml", content.String())
+
 }

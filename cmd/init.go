@@ -52,9 +52,9 @@ func newInitCommand(cmd *cobra.Command, args []string) {
 	createDirectory()
 
 	createBase(app, resourceFiles, kustomization.BaseGenerators(cmd.Flags().Changed("ingress")))
-	kustomization.Create(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
+	kustomization.Create(input.NewKustomization(resourceFiles.GetFilenames(), ""), resourceFiles)
 
-	fs.WriteAll(resourceFiles, input.Directory(), "base")
+	resourceFiles.WriteAll(Directory(), "base")
 }
 
 func useDefault(def string, flag string) string {
@@ -65,22 +65,22 @@ func useDefault(def string, flag string) string {
 }
 
 func createDirectory() {
-	_, err := fs.Get().Stat(input.Directory())
-	dirExists, err := afero.DirExists(fs.Get(), input.Directory())
+	_, err := fs.Get().Stat(Directory())
+	dirExists, err := afero.DirExists(fs.Get(), Directory())
 
 	if dirExists {
-		log.Warnf("Platform directory %s already exists", input.Directory())
+		log.Warnf("Platform directory %s already exists", Directory())
 
 	} else if err != nil {
 		log.Fatalf("Could not read local directory %v", err)
 	}
 
-	err = fs.Get().MkdirAll(filepath.Join("./", input.Directory(), "base"), 0755)
+	err = fs.Get().MkdirAll(filepath.Join("./", Directory(), "base"), 0755)
 
-	log.Infof("Creating directory %s", input.Directory())
+	log.Infof("Creating directory %s", Directory())
 
 	if err != nil {
-		log.Fatalf("Cannot create platform directory %s %v", input.Directory(), err)
+		log.Fatalf("Cannot create platform directory %s %v", Directory(), err)
 	}
 }
 

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"github.com/azunymous/easymodo/cmd/fs"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -14,7 +15,7 @@ const platformDirDefault = "platform"
 const baseDirDefault = "base"
 
 func TestCreatesPlatformDir(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -28,13 +29,13 @@ func TestCreatesPlatformDir(t *testing.T) {
 	println(buf.String())
 	println(err.String())
 
-	stat, fErr := appFs.Stat(platformDirDefault)
+	stat, fErr := fs.Get().Stat(platformDirDefault)
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
 }
 
 func TestCreatesBaseDir(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -49,13 +50,13 @@ func TestCreatesBaseDir(t *testing.T) {
 	println(buf.String())
 	println(err.String())
 
-	stat, fErr := appFs.Stat(path.Join(platformDirDefault, baseDirDefault))
+	stat, fErr := fs.Get().Stat(path.Join(platformDirDefault, baseDirDefault))
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
 }
 
 func TestCreatesKustomizationFile(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -71,12 +72,12 @@ func TestCreatesKustomizationFile(t *testing.T) {
 	println(err.String())
 
 	p := path.Join(platformDirDefault, baseDirDefault, "kustomization.yaml")
-	stat, fErr := appFs.Stat(p)
+	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "kustomization.yaml"))
-	actual, fErr := afero.ReadFile(appFs, p)
+	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
@@ -84,7 +85,7 @@ func TestCreatesKustomizationFile(t *testing.T) {
 }
 
 func TestCreatesDeploymentFile(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -100,12 +101,12 @@ func TestCreatesDeploymentFile(t *testing.T) {
 	println(err.String())
 
 	p := path.Join(platformDirDefault, baseDirDefault, "deployment.yaml")
-	stat, fErr := appFs.Stat(p)
+	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "deployment.yaml"))
-	actual, fErr := afero.ReadFile(appFs, p)
+	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
@@ -113,7 +114,7 @@ func TestCreatesDeploymentFile(t *testing.T) {
 }
 
 func TestCreatesServiceFile(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -129,12 +130,12 @@ func TestCreatesServiceFile(t *testing.T) {
 	println(err.String())
 
 	p := path.Join(platformDirDefault, baseDirDefault, "service.yaml")
-	stat, fErr := appFs.Stat(p)
+	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "service.yaml"))
-	actual, fErr := afero.ReadFile(appFs, p)
+	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
@@ -142,7 +143,7 @@ func TestCreatesServiceFile(t *testing.T) {
 }
 
 func TestCreatesFlagPlatformDir(t *testing.T) {
-	appFs = afero.NewMemMapFs()
+	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
@@ -157,7 +158,7 @@ func TestCreatesFlagPlatformDir(t *testing.T) {
 	println(buf.String())
 	println(err.String())
 
-	stat, fErr := appFs.Stat("flagPlatform")
+	stat, fErr := fs.Get().Stat("flagPlatform")
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
 }
