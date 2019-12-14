@@ -1,5 +1,6 @@
 # TODO
-
+- [ ] Reorganize & Refactor creation functions and generation functions to be easier to use
+- [ ] Share logic between add and overlay
 - [ ] Document exported functions and packages
 - [ ] Create development kustomization folder and resources
 - [ ] Generate kustomization resource templates and Go code

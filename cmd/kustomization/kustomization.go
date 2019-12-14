@@ -12,6 +12,20 @@ kind: Kustomization
 resources:
 {{range $key, $value := .Res }}- {{$value}}
 {{end}}
+{{if .Config -}}
+configMapGenerator:
+{{- range $key, $value := .Config}}
+  - name: {{$key}}
+    files:{{range $index, $filename := $value }}
+      - {{$filename}}
+{{- end}}
+{{- end}}
+{{- end}}
+
+{{- if .Patches}}
+patchesStrategicMerge:
+{{range $key, $value := .Patches }}  - {{$value}}{{end}}
+{{- end}}
 `
 
 	tmpl, err := template.New("kustomization").Parse(kustomization)

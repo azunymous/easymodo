@@ -45,7 +45,7 @@ func Create(resources *input.Kustomization, files *fs.FileMap) {
 	}
 }
 
-func Generators(ingressEnabled bool) []Generator {
+func BaseGenerators(ingressEnabled bool) []Generator {
 	generators := []Generator{
 		Generate("deployment", Deployment()),
 		Generate("service", Service()),

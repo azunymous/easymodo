@@ -51,7 +51,7 @@ func newInitCommand(cmd *cobra.Command, args []string) {
 
 	createDirectory()
 
-	createBase(app, resourceFiles, kustomization.Generators(cmd.Flags().Changed("ingress")))
+	createBase(app, resourceFiles, kustomization.BaseGenerators(cmd.Flags().Changed("ingress")))
 	kustomization.Create(input.NewKustomization(resourceFiles.GetResources(), ""), resourceFiles)
 
 	fs.WriteAll(resourceFiles, input.Directory(), "base")

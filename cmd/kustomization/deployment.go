@@ -35,3 +35,29 @@ spec:
 	}
 	return tmpl
 }
+
+func DeploymentConfigPatch() *template.Template {
+	deploymentConfigPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{.ContainerName}}
+          volumeMounts:
+            - mountPath: /config/
+              name: {{.Name}}-config
+      volumes:
+        - name: {{.Name}}-config
+          configMap:
+            name: {{.Name}}-config`
+
+	tmpl, err := template.New("deployment").Parse(deploymentConfigPatch)
+	if err != nil {
+		panic("deploymentConfigPatch spec template is misconfigured")
+	}
+	return tmpl
+}

@@ -22,17 +22,13 @@ a namespace formed of the [app name]-[suffix].`,
 	Args: cobra.MaximumNArgs(0),
 }
 
-var suffix string
-var flagNamespace string
-var nsResource bool
-
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	addCmd.PersistentFlags().StringVarP(&suffix, "suffix", "s", "dev", "Suffix to use for namespace for overlay")
-	addCmd.PersistentFlags().StringVarP(&flagNamespace, "namespace", "n", "", "Specify a full namespace instead of using a suffix")
+	addCmd.PersistentFlags().StringVarP(input.SuffixFlag(), "suffix", "s", "dev", "Suffix to use for namespace for overlay")
+	addCmd.PersistentFlags().StringVarP(input.NamespaceFlag(), "namespace", "n", "", "Specify a full namespace instead of using a suffix")
 
-	addCmd.Flags().BoolVarP(&nsResource, "resource", "r", false, "Create namespace resource")
+	addCmd.Flags().BoolVarP(input.NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 func newAddCommand(cmd *cobra.Command, args []string) {
 	exists, err := afero.DirExists(fs.Get(), path.Join(input.Directory(), "base"))
@@ -44,17 +40,17 @@ func newAddCommand(cmd *cobra.Command, args []string) {
 	var namespace string
 	var nsDir string
 
-	if flagNamespace == "" {
-		namespace = input.GetAppName(fs.Get(), input.Directory()) + "-" + suffix
-		nsDir = suffix
+	if input.Namespace() == "" {
+		namespace = input.GetAppName(fs.Get(), input.Directory()) + "-" + input.Suffix()
+		nsDir = input.Suffix()
 	} else {
-		namespace = flagNamespace
-		nsDir = flagNamespace
+		namespace = input.Namespace()
+		nsDir = input.Namespace()
 	}
 
 	exists, err = afero.DirExists(fs.Get(), path.Join(input.Directory(), nsDir))
 
-	if err == nil && exists {
+	if err == nil && exists && !input.Force() {
 		log.Fatalf("%s directory (%s) already exists", nsDir, path.Join(input.Directory(), nsDir))
 	}
 
@@ -62,7 +58,7 @@ func newAddCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 	res := []string{relativeBasePath}
 
-	if nsResource {
+	if input.NamespaceResource() {
 		err := kustomization.Generate("namespace", kustomization.Namespace())(input.Application{Namespace: namespace}, resourceFiles)
 		if err != nil {
 			log.Warnf("Could not create namespace: %v", err)
