@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/azunymous/easymodo/cmd/fs"
 	"github.com/azunymous/easymodo/cmd/input"
 	"github.com/azunymous/easymodo/cmd/kustomization"
@@ -12,12 +11,13 @@ import (
 
 // overlayCmd represents the overlay command
 var overlayCmd = &cobra.Command{
-	Use:   "overlay",
+	Use:   "overlay [namespace]",
 	Short: "Defines a kustomize overlay",
 	Long: `Defines kustomization files for an overlay. 
 This is intended for different environments e.g dev, stage or production, setting common
 kustomization options via flags`,
-	Run: overlayCommand,
+	Run:  overlayCommand,
+	Args: cobra.MaximumNArgs(1),
 }
 
 func init() {
@@ -26,17 +26,29 @@ func init() {
 	overlayCmd.PersistentFlags().StringToStringVarP(ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
 
 	// Shared with add command
-	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "dev", "Suffix to use for namespace for overlay")
-	overlayCmd.PersistentFlags().StringVarP(NamespaceFlag(), "namespace", "n", "", "Specify a full namespace instead of using a suffix")
+	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 
 func overlayCommand(cmd *cobra.Command, args []string) {
-	fmt.Println("overlay called")
 	resourceFiles := fs.NewFileMap()
+	appName := input.GetAppName(fs.Get(), Directory())
 
-	// TODO remove below duplicated code between add and overlay
-	appName, namespace, nsDir := appNameAndNamespaceFromFlags(cmd)
+	var (
+		namespace string
+		nsDir     string
+	)
+
+	if cmd.Flags().Changed("suffix") {
+		namespace = appName + "-" + Suffix()
+		nsDir = Suffix()
+	} else if len(args) < 1 {
+		println(cmd.UsageString())
+		log.Fatalf("No namespace or namespace suffix provided!")
+	} else {
+		namespace = args[0]
+		nsDir = args[0]
+	}
 
 	k := input.Kustomization{
 		Res:       []string{},
@@ -81,17 +93,4 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	kustomization.Create(&k, resourceFiles)
 	resourceFiles.WriteAll(Directory(), nsDir)
 
-}
-
-// appNameAndNamespace returns the app name, namespace and the namespace directory in that order.
-func appNameAndNamespaceFromFlags(cmd *cobra.Command) (string, string, string) {
-	appName := input.GetAppName(fs.Get(), Directory())
-	namespace := appName + "-" + Suffix()
-	nsDir := Suffix()
-
-	if cmd.Flags().Changed("namespace") {
-		namespace = Namespace()
-		nsDir = Namespace()
-	}
-	return appName, namespace, nsDir
 }
