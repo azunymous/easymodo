@@ -6,6 +6,7 @@ var global = Flags{
 
 type Flags struct {
 	configFiles       map[string]string
+	secretEnvs        map[string]string
 	directory         string
 	suffix            string
 	namespace         string
@@ -19,6 +20,14 @@ func ConfigFiles() map[string]string {
 
 func ConfigFilesFlag() *map[string]string {
 	return &global.configFiles
+}
+
+func SecretEnvs() map[string]string {
+	return global.secretEnvs
+}
+
+func SecretEnvsFlag() *map[string]string {
+	return &global.secretEnvs
 }
 
 func Directory() string {

@@ -21,10 +21,20 @@ configMapGenerator:
 {{- end}}
 {{- end}}
 {{- end}}
+{{if .Secrets -}}
+secretGenerator:
+{{- range $key, $value := .Secrets}}
+  - name: {{$key}}
+    envs:{{range $index, $filename := $value }}
+      - {{$filename}}
+{{- end}}
+{{- end}}
+{{- end}}
 
 {{- if .Patches}}
 patchesStrategicMerge:
-{{range $key, $value := .Patches }}  - {{$value}}{{end}}
+{{range $key, $value := .Patches }}  - {{$value}}
+{{end}}
 {{- end}}
 `
 

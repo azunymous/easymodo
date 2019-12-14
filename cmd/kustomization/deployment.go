@@ -55,9 +55,31 @@ spec:
           configMap:
             name: {{.Name}}-config`
 
-	tmpl, err := template.New("deployment").Parse(deploymentConfigPatch)
+	tmpl, err := template.New("deployment-config").Parse(deploymentConfigPatch)
 	if err != nil {
 		panic("deploymentConfigPatch spec template is misconfigured")
+	}
+	return tmpl
+}
+
+func DeploymentSecretPatch() *template.Template {
+	deploymentSecretPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{.ContainerName}}
+          envFrom:
+            - secretRef:
+                name: {{.Name}}-secret`
+
+	tmpl, err := template.New("deployment-secret").Parse(deploymentSecretPatch)
+	if err != nil {
+		panic("deploymentSecretPatch spec template is misconfigured")
 	}
 	return tmpl
 }

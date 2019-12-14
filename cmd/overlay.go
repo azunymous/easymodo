@@ -28,7 +28,8 @@ func init() {
 	overlayCmd.PersistentFlags().StringToStringVarP(ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
 	overlayCmd.PersistentFlags().StringVarP(&configPath, "configPath", "p", "/config/", "Configuration folder for mounting config map contents")
 
-	// Shared with add command
+	overlayCmd.PersistentFlags().StringToStringVarP(SecretEnvsFlag(), "secretEnv", "e", nil, "Secret .env filename and env file for generating secrets")
+
 	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
@@ -57,6 +58,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		Res:       []string{},
 		Patches:   []string{},
 		Config:    map[string][]string{},
+		Secrets:   map[string][]string{},
 		Namespace: namespace,
 	}
 
@@ -67,7 +69,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		ConfigPath:    configPath,
 	}
 
-	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")
+	relativeBasePath := filepath.Join("../", "base")
 	k.AddResource(relativeBasePath)
 
 	if NamespaceResource() {
@@ -91,7 +93,20 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 			resourceFiles.Add(fileName, content)
 			k.AddConfig(appName+"-config", fileName)
 		}
+	}
 
+	if len(SecretEnvs()) > 0 {
+		err := kustomization.Generate("deployment-secret-patch", kustomization.DeploymentSecretPatch())(application, resourceFiles)
+		if err != nil {
+			log.Fatalf("could not create deployment patch with given secret file: %v", err)
+		}
+
+		k.AddPatch("deployment-secret-patch.yaml")
+
+		for fileName, content := range SecretEnvs() {
+			resourceFiles.Add(fileName, content)
+			k.AddSecret(appName+"-secret", fileName)
+		}
 	}
 
 	kustomization.Create(&k, resourceFiles)
