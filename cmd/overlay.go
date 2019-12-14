@@ -20,10 +20,13 @@ kustomization options via flags`,
 	Args: cobra.MaximumNArgs(1),
 }
 
+var configPath string
+
 func init() {
 	rootCmd.AddCommand(overlayCmd)
 
 	overlayCmd.PersistentFlags().StringToStringVarP(ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
+	overlayCmd.PersistentFlags().StringVarP(&configPath, "configPath", "p", "/config/", "Configuration folder for mounting config map contents")
 
 	// Shared with add command
 	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
@@ -61,6 +64,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		Name:          appName,
 		ContainerName: appName,
 		Namespace:     namespace,
+		ConfigPath:    configPath,
 	}
 
 	relativeBasePath := filepath.Join("../", "base", "kustomization.yaml")

@@ -48,7 +48,7 @@ spec:
       containers:
         - name: {{.ContainerName}}
           volumeMounts:
-            - mountPath: /config/
+            - mountPath: {{.ConfigPath}}
               name: {{.Name}}-config
       volumes:
         - name: {{.Name}}-config

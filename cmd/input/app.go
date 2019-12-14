@@ -10,13 +10,14 @@ import (
 
 type Application struct {
 	Name          string
+	Namespace     string
 	Stateful      bool
 	Image         string
 	ContainerName string
 	ContainerPort int
 	Protocol      string
 	Host          string
-	Namespace     string
+	ConfigPath    string
 }
 
 func GetAppName(fs afero.Fs, dir string) string {
