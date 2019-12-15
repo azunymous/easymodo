@@ -20,7 +20,7 @@ type Application struct {
 	ConfigPath    string
 }
 
-func GetAppName(fs afero.Fs, dir string) string {
+func GetAppName(fs afero.Fs, dir string) (string, int) {
 	df, err := afero.ReadFile(fs, path.Join(dir, "base", "deployment.yaml"))
 	if err != nil {
 		log.Fatalf("Could not open base deployment.yaml file: %v. Make sure you have a base deployment or call easymodo init", err)
@@ -35,6 +35,19 @@ func GetAppName(fs afero.Fs, dir string) string {
 		Metadata struct {
 			Name string `yaml:"name"`
 		} `yaml:"metadata"`
+		Spec struct {
+			Template struct {
+				Spec struct {
+					Containers []struct {
+						Name  string `yaml:"name"`
+						Image string `yaml:"image"`
+						Ports []struct {
+							ContainerPort int `yaml:"containerPort"`
+						} `yaml:"ports"`
+					} `yaml:"containers"`
+				} `yaml:"spec"`
+			} `yaml:"template"`
+		} `yaml:"spec"`
 	}
 
 	deployment := Deployment{}
@@ -49,5 +62,12 @@ func GetAppName(fs afero.Fs, dir string) string {
 	}
 
 	log.Infof("Read base deployment file %s. Using %s as namespace prefix", deployment.Metadata.Name, deployment.Metadata.Name)
-	return deployment.Metadata.Name
+	containers := deployment.Spec.Template.Spec.Containers
+	var port int
+	if len(containers) > 0 {
+		port = containers[0].Ports[0].ContainerPort
+	} else {
+		log.Warnf("Cannot determine container port from base deployment")
+	}
+	return deployment.Metadata.Name, port
 }

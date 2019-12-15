@@ -30,13 +30,15 @@ func init() {
 
 	overlayCmd.PersistentFlags().StringToStringVarP(SecretEnvsFlag(), "secretEnv", "e", nil, "Secret .env filename and env file for generating secrets")
 
+	overlayCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
+
 	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 
 func overlayCommand(cmd *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
-	appName := input.GetAppName(fs.Get(), Directory())
+	appName, appPort := input.GetAppName(fs.Get(), Directory())
 
 	var (
 		namespace string
@@ -65,8 +67,10 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	application := input.Application{
 		Name:          appName,
 		ContainerName: appName,
+		ContainerPort: appPort,
 		Namespace:     namespace,
 		ConfigPath:    configPath,
+		Host:          ingress,
 	}
 
 	relativeBasePath := filepath.Join("../", "base")
@@ -81,6 +85,24 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	addConfigGenerator(application, resourceFiles, k, appName)
+	addSecretGenerator(application, resourceFiles, k, appName)
+
+	if cmd.Flags().Changed("ingress") {
+		err := kustomization.Generate("ingress", kustomization.Ingress())(application, resourceFiles)
+		if err != nil {
+			log.Warnf("Could not create ingress: %v", err)
+		} else {
+			k.AddResource("ingress.yaml")
+		}
+	}
+
+	kustomization.Create(&k, resourceFiles)
+	resourceFiles.WriteAll(Directory(), nsDir)
+
+}
+
+func addConfigGenerator(application input.Application, resourceFiles fs.Files, k input.Kustomization, appName string) {
 	if len(ConfigFiles()) > 0 {
 		err := kustomization.Generate("deployment-config-patch", kustomization.DeploymentConfigPatch())(application, resourceFiles)
 		if err != nil {
@@ -94,7 +116,9 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 			k.AddConfig(appName+"-config", fileName)
 		}
 	}
+}
 
+func addSecretGenerator(application input.Application, resourceFiles fs.Files, k input.Kustomization, appName string) {
 	if len(SecretEnvs()) > 0 {
 		err := kustomization.Generate("deployment-secret-patch", kustomization.DeploymentSecretPatch())(application, resourceFiles)
 		if err != nil {
@@ -108,8 +132,4 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 			k.AddSecret(appName+"-secret", fileName)
 		}
 	}
-
-	kustomization.Create(&k, resourceFiles)
-	resourceFiles.WriteAll(Directory(), nsDir)
-
 }
