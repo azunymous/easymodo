@@ -1,5 +1,9 @@
 # easymodo
-WIP generator for creating kustomization files
+WIP generator for creating Kubernetes and Kustomization resources.
+
+This can be used to quickly bootstrap a project onto kubernetes into multiple environments by generating Kubernetes resources and kustomizations. `easymodo` creates very simple deployment and service resources that are suitable for many applications and you can overlay these with configuration/secret mounting per environment.
+
+You can use these commands both imperatively (for bootstrapping) or declaratively (hooking into another build tool or applying the created resources immediately).
 
 ## Usage
 `easymodo -h`
@@ -35,3 +39,9 @@ For example, to read in the config file and generate a config map and deployment
 ```shell script
 easymodo overlay app-dev -c config-yaml="$(cat ./dev-config.yaml)"
 ```
+
+These will be mounted by default in `/config/` but the path can be overriden via the `-p` flag. 
+
+### Secret Generator generator
+Similiar to configuration files, secrets generated via .env files can be mounted on the application container. This is with the
+`-e` flag, taking the form of key value pairs. Unlike configmaps which are mounted as files, easymodo expects .env files containing secrets. These are exposed on the pod as environment variables.
