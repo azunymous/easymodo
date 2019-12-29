@@ -40,6 +40,22 @@ func TestCreatesOverlayDir(t *testing.T) {
 	assert.True(t, stat.IsDir())
 }
 
+func TestCreatesOverlayDirWithSuffix(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"overlay",
+		"-s", "suffix",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "suffix")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.True(t, stat.IsDir())
+}
+
 func TestCreatesOverlayKustomizationFile(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
@@ -57,6 +73,81 @@ func TestCreatesOverlayKustomizationFile(t *testing.T) {
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("overlayed", "app-dev", "kustomization.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-r",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "namespace.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed", "app-dev", "namespace.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayIngressResourceFile(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"--ingress=example.com",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "ingress.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-ingress", "app-dev", "ingress.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayKustomizationWithIngress(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"--ingress=example.com",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "kustomization.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-ingress", "app-dev", "kustomization.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
@@ -155,6 +246,40 @@ configuration: test`
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-config", "app-dev", "deployment-config-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreateOverlayDeploymentConfigMergePatchWithConfigPath(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	configuration := `example:
+  - a
+  - b
+  - c
+configuration: test`
+
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-c",
+		"configuration.yaml=" + configuration,
+		"-p", "/other/",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-config-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("misc", "patch-with-different-config-path.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
