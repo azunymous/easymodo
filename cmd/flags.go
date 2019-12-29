@@ -7,7 +7,9 @@ var global = Flags{
 func ResetOptionalFlags() {
 	global.configFiles = map[string]string{}
 	global.secretEnvs = map[string]string{}
+	global.namespaceResource = false
 	global.suffix = ""
+	global.ingress = ""
 }
 
 type Flags struct {
@@ -18,6 +20,7 @@ type Flags struct {
 	namespace         string
 	namespaceResource bool
 	force             bool
+	ingress           string
 }
 
 func ConfigFiles() map[string]string {
@@ -66,6 +69,14 @@ func NamespaceResource() bool {
 
 func NamespaceResourceFlag() *bool {
 	return &global.namespaceResource
+}
+
+func Ingress() string {
+	return global.ingress
+}
+
+func IngressFlag() *string {
+	return &global.ingress
 }
 
 func Force() bool {

@@ -30,7 +30,7 @@ func init() {
 
 	overlayCmd.PersistentFlags().StringToStringVarP(SecretEnvsFlag(), "secretEnv", "e", nil, "Secret .env filename and env file for generating secrets")
 
-	overlayCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
+	overlayCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
 
 	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
@@ -45,7 +45,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		nsDir     string
 	)
 
-	if cmd.Flags().Changed("suffix") {
+	if Suffix() != "" {
 		namespace = appName + "-" + Suffix()
 		nsDir = Suffix()
 	} else if len(args) < 1 {
@@ -70,7 +70,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		ContainerPort: appPort,
 		Namespace:     namespace,
 		ConfigPath:    configPath,
-		Host:          ingress,
+		Host:          Ingress(),
 	}
 
 	relativeBasePath := filepath.Join("../", "base")
@@ -88,7 +88,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 	addConfigGenerator(application, resourceFiles, &k, appName)
 	addSecretGenerator(application, resourceFiles, &k, appName)
 
-	if cmd.Flags().Changed("ingress") {
+	if Ingress() != "" {
 		err := kustomization.Generate("ingress", kustomization.Ingress())(application, resourceFiles)
 		if err != nil {
 			log.Warnf("Could not create ingress: %v", err)

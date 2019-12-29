@@ -24,7 +24,6 @@ Defaults to creating a base in the platform directory.`,
 var imageUri string
 var port int
 var protocol string
-var ingress string
 
 func init() {
 	rootCmd.AddCommand(initCmd)
@@ -32,7 +31,7 @@ func init() {
 	initCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
 	initCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
 	initCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
-	initCmd.Flags().StringVar(&ingress, "ingress", "", "Enable ingress resource generation with given host")
+	initCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
 }
 
 func newInitCommand(cmd *cobra.Command, args []string) {
@@ -44,14 +43,14 @@ func newInitCommand(cmd *cobra.Command, args []string) {
 		ContainerName: args[0],
 		ContainerPort: port,
 		Protocol:      "TCP",
-		Host:          ingress,
+		Host:          Ingress(),
 	}
 
 	log.Infof("initializing current directory for application %s", app.Name)
 
 	createDirectory()
 
-	createBase(app, resourceFiles, kustomization.BaseGenerators(cmd.Flags().Changed("ingress")))
+	createBase(app, resourceFiles, kustomization.BaseGenerators(Ingress() != ""))
 	kustomization.Create(input.NewKustomization(resourceFiles.GetFilenames(), ""), resourceFiles)
 
 	resourceFiles.WriteAll(Directory(), "base")

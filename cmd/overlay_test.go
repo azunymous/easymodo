@@ -40,29 +40,12 @@ func TestCreatesOverlayDir(t *testing.T) {
 	assert.True(t, stat.IsDir())
 }
 
-func TestCreatesOverlayDirWithSuffix(t *testing.T) {
-	cmd, buf, err := setUpOverlayCommand()
-	cmd.SetArgs([]string{
-		"overlay",
-		"-s", "suffix",
-	})
-	_ = cmd.Execute()
-	println(buf.String())
-	println(err.String())
-
-	p := path.Join(platformDirDefault, "suffix")
-	stat, fErr := fs.Get().Stat(p)
-	assert.Nil(t, fErr)
-	assert.True(t, stat.IsDir())
-}
-
 func TestCreatesOverlayKustomizationFile(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
 		"overlay",
 		"app-dev",
 	})
-
 	_ = cmd.Execute()
 	println(buf.String())
 	println(err.String())
@@ -78,6 +61,22 @@ func TestCreatesOverlayKustomizationFile(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayDirWithSuffix(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"overlay",
+		"-s", "suffix",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "suffix")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.True(t, stat.IsDir())
 }
 
 func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
