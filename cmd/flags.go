@@ -4,6 +4,12 @@ var global = Flags{
 	force: false,
 }
 
+func ResetOptionalFlags() {
+	global.configFiles = map[string]string{}
+	global.secretEnvs = map[string]string{}
+	global.suffix = ""
+}
+
 type Flags struct {
 	configFiles       map[string]string
 	secretEnvs        map[string]string

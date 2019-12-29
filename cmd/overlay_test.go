@@ -64,7 +64,7 @@ func TestCreatesOverlayKustomizationFile(t *testing.T) {
 	assert.YAMLEq(t, string(expect), string(actual))
 }
 
-func TestCreatesOverlayDeploymentMergeKustomization(t *testing.T) {
+func TestCreatesOverlayDeploymentMergeWithConfigKustomization(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 
 	configuration := `example:
@@ -76,7 +76,7 @@ configuration: test`
 	cmd.SetArgs([]string{
 		"overlay",
 		"app-dev",
-		"-c configuration.yaml=" + configuration,
+		"-c", "configuration.yaml=" + configuration,
 	})
 
 	_ = cmd.Execute()
@@ -94,4 +94,152 @@ configuration: test`
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesProvidedConfigFile(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	configuration := `example:
+  - a
+  - b
+  - c
+configuration: test`
+
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-c",
+		"configuration.yaml=" + configuration,
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "configuration.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-config", "app-dev", "configuration.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreateOverlayDeploymentConfigMergePatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	configuration := `example:
+  - a
+  - b
+  - c
+configuration: test`
+
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-c",
+		"configuration.yaml=" + configuration,
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-config-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-config", "app-dev", "deployment-config-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayDeploymentMergeWithSecretEnvKustomization(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	env := `ENVIRONMENT=DEVELOPMENT`
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-e", "dev.env=" + env,
+	})
+
+	println(cmd.Args)
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "kustomization.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-secret-env", "app-dev", "kustomization.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+}
+
+func TestCreatesProvidedSecretEnv(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	env := `ENVIRONMENT=DEVELOPMENT`
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-e", "dev.env=" + env,
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "dev.env")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-secret-env", "app-dev", "dev.env"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.Equal(t, string(expect), string(actual))
+}
+
+func TestCreatesOverlayDeploymentMergeWithSecretEnvPatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	env := `ENVIRONMENT=DEVELOPMENT`
+	cmd.SetArgs([]string{
+		"overlay",
+		"app-dev",
+		"-e", "dev.env=" + env,
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-secret-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-secret-env", "app-dev", "deployment-secret-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.Equal(t, string(expect), string(actual))
 }

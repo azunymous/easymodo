@@ -16,6 +16,7 @@ const platformDirDefault = "platform"
 const baseDirDefault = "base"
 
 func setUpCommand() (*cobra.Command, *bytes.Buffer, *bytes.Buffer) {
+	ResetOptionalFlags()
 	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
