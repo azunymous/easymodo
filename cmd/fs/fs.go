@@ -15,3 +15,8 @@ func Get() afero.Fs {
 func SetFs() {
 	appFs = afero.NewMemMapFs()
 }
+
+// SetFs sets the filesystem to an in memory file system instead. Useful for testing.
+func SetFsTo(fs afero.Fs) {
+	appFs = fs
+}

@@ -85,8 +85,8 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	addConfigGenerator(application, resourceFiles, k, appName)
-	addSecretGenerator(application, resourceFiles, k, appName)
+	addConfigGenerator(application, resourceFiles, &k, appName)
+	addSecretGenerator(application, resourceFiles, &k, appName)
 
 	if cmd.Flags().Changed("ingress") {
 		err := kustomization.Generate("ingress", kustomization.Ingress())(application, resourceFiles)
@@ -102,7 +102,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 
 }
 
-func addConfigGenerator(application input.Application, resourceFiles fs.Files, k input.Kustomization, appName string) {
+func addConfigGenerator(application input.Application, resourceFiles fs.Files, k *input.Kustomization, appName string) {
 	if len(ConfigFiles()) > 0 {
 		err := kustomization.Generate("deployment-config-patch", kustomization.DeploymentConfigPatch())(application, resourceFiles)
 		if err != nil {
@@ -118,7 +118,7 @@ func addConfigGenerator(application input.Application, resourceFiles fs.Files, k
 	}
 }
 
-func addSecretGenerator(application input.Application, resourceFiles fs.Files, k input.Kustomization, appName string) {
+func addSecretGenerator(application input.Application, resourceFiles fs.Files, k *input.Kustomization, appName string) {
 	if len(SecretEnvs()) > 0 {
 		err := kustomization.Generate("deployment-secret-patch", kustomization.DeploymentSecretPatch())(application, resourceFiles)
 		if err != nil {

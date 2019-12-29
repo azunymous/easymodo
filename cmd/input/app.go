@@ -61,7 +61,7 @@ func GetAppName(fs afero.Fs, dir string) (string, int) {
 		log.Fatalf("Kubernetes resource file is not a Deployment")
 	}
 
-	log.Infof("Read base deployment file %s. Using %s as namespace prefix", deployment.Metadata.Name, deployment.Metadata.Name)
+	log.Infof("Read base deployment file %s. Using %s as application name", deployment.Metadata.Name, deployment.Metadata.Name)
 	containers := deployment.Spec.Template.Spec.Containers
 	var port int
 	if len(containers) > 0 {

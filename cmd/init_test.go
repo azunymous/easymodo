@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/azunymous/easymodo/cmd/fs"
 	"github.com/spf13/afero"
+	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"path"
@@ -14,13 +15,18 @@ import (
 const platformDirDefault = "platform"
 const baseDirDefault = "base"
 
-func TestCreatesPlatformDir(t *testing.T) {
+func setUpCommand() (*cobra.Command, *bytes.Buffer, *bytes.Buffer) {
 	fs.SetFs()
 	cmd := rootCmd
 	buf := new(bytes.Buffer)
 	err := new(bytes.Buffer)
 	cmd.SetOut(buf)
 	cmd.SetErr(err)
+	return cmd, buf, err
+}
+
+func TestCreatesPlatformDir(t *testing.T) {
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
@@ -35,12 +41,7 @@ func TestCreatesPlatformDir(t *testing.T) {
 }
 
 func TestCreatesBaseDir(t *testing.T) {
-	fs.SetFs()
-	cmd := rootCmd
-	buf := new(bytes.Buffer)
-	err := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(err)
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
@@ -56,12 +57,7 @@ func TestCreatesBaseDir(t *testing.T) {
 }
 
 func TestCreatesKustomizationFile(t *testing.T) {
-	fs.SetFs()
-	cmd := rootCmd
-	buf := new(bytes.Buffer)
-	err := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(err)
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
@@ -85,12 +81,7 @@ func TestCreatesKustomizationFile(t *testing.T) {
 }
 
 func TestCreatesDeploymentFile(t *testing.T) {
-	fs.SetFs()
-	cmd := rootCmd
-	buf := new(bytes.Buffer)
-	err := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(err)
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
@@ -114,12 +105,7 @@ func TestCreatesDeploymentFile(t *testing.T) {
 }
 
 func TestCreatesServiceFile(t *testing.T) {
-	fs.SetFs()
-	cmd := rootCmd
-	buf := new(bytes.Buffer)
-	err := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(err)
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
@@ -143,12 +129,7 @@ func TestCreatesServiceFile(t *testing.T) {
 }
 
 func TestCreatesFlagPlatformDir(t *testing.T) {
-	fs.SetFs()
-	cmd := rootCmd
-	buf := new(bytes.Buffer)
-	err := new(bytes.Buffer)
-	cmd.SetOut(buf)
-	cmd.SetErr(err)
+	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
 		"init",
 		"app",
