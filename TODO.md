@@ -4,7 +4,7 @@
 - [ ] Generate kustomization resource templates and Go code
 - [ ] Generate files in tmp directory before copying to actual directory
 - [ ] Idempotence
-- [ ] Refactor tests to have less repeated code
+- [ ] Fix tests to not rely on resetting global flags
 
 # Plan
 #### Declarative:

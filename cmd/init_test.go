@@ -143,4 +143,6 @@ func TestCreatesFlagPlatformDir(t *testing.T) {
 	stat, fErr := fs.Get().Stat("flagPlatform")
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
+
+	*DirectoryFlag() = "platform"
 }
