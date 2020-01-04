@@ -1,9 +1,16 @@
 package cmd
 
+/*
+Variable for the package containing shared flag information.
+Features self described functions for getting these values and functions with the 'Flag' suffix for
+getting the pointer to these values.
+*/
 var global = Flags{
 	force: false,
 }
 
+// ResetOptionalFlags is for resetting the flags. This is for testing purposes, when a command will
+// called multiple times from a test.
 func ResetOptionalFlags() {
 	global.configFiles = map[string]string{}
 	global.secretEnvs = map[string]string{}

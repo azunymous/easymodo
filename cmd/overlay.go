@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-// overlayCmd represents the overlay command
+// overlayCmd represents the overlay command for creating a kustomize overlay
 var overlayCmd = &cobra.Command{
 	Use:   "overlay [namespace]",
 	Short: "Defines a kustomize overlay",

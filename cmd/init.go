@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 )
 
-// initCmd represents the init command
+// initCmd represents the init command for initializing a kustomize base.
 var initCmd = &cobra.Command{
 	Use:   "init [application name]",
 	Short: "Define base kustomize YAML",

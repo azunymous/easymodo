@@ -8,6 +8,8 @@ import (
 	"path"
 )
 
+// Application defines the struct for a single application and possible configuration that would be
+// required for a deployment.
 type Application struct {
 	Name          string
 	Namespace     string
@@ -20,6 +22,7 @@ type Application struct {
 	ConfigPath    string
 }
 
+// GetAppName reads the base deployment file and returns the set application name and port
 func GetAppName(fs afero.Fs, dir string) (string, int) {
 	df, err := afero.ReadFile(fs, path.Join(dir, "base", "deployment.yaml"))
 	if err != nil {
