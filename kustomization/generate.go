@@ -8,8 +8,8 @@ files map.
 package kustomization
 
 import (
-	"github.com/azunymous/easymodo/cmd/fs"
-	"github.com/azunymous/easymodo/cmd/input"
+	"github.com/azunymous/easymodo/fs"
+	"github.com/azunymous/easymodo/input"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"strings"

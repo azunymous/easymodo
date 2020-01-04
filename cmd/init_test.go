@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bytes"
-	"github.com/azunymous/easymodo/cmd/fs"
+	"github.com/azunymous/easymodo/fs"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"

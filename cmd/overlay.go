@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"github.com/azunymous/easymodo/cmd/fs"
-	"github.com/azunymous/easymodo/cmd/input"
-	"github.com/azunymous/easymodo/cmd/kustomization"
+	"github.com/azunymous/easymodo/fs"
+	"github.com/azunymous/easymodo/input"
+	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"path/filepath"
