@@ -11,14 +11,14 @@ import (
 )
 
 // initCmd represents the init command for initializing a kustomize base.
-var initCmd = &cobra.Command{
-	Use:   "init [application name]",
+var baseCmd = &cobra.Command{
+	Use:   "base [application name]",
 	Short: "Define base kustomize YAML",
 	Long: `Generates base kustomization files for the given application name. 
 Defaults to creating a base in the platform directory.`,
 	Run:     newInitCommand,
 	Args:    cobra.MinimumNArgs(1),
-	Aliases: []string{"base", "generate"},
+	Aliases: []string{"init"},
 }
 
 var imageUri string
@@ -26,12 +26,12 @@ var port int
 var protocol string
 
 func init() {
-	rootCmd.AddCommand(initCmd)
+	rootCmd.AddCommand(baseCmd)
 
-	initCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
-	initCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
-	initCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
-	initCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
+	baseCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
+	baseCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")
+	baseCmd.Flags().StringVar(&protocol, "protocol", "TCP", "Set protocol")
+	baseCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
 }
 
 func newInitCommand(_ *cobra.Command, args []string) {

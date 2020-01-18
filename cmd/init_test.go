@@ -29,7 +29,7 @@ func setUpCommand() (*cobra.Command, *bytes.Buffer, *bytes.Buffer) {
 func TestCreatesPlatformDir(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 	})
 	_ = cmd.Execute()
@@ -44,7 +44,7 @@ func TestCreatesPlatformDir(t *testing.T) {
 func TestCreatesBaseDir(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 	})
 
@@ -60,7 +60,7 @@ func TestCreatesBaseDir(t *testing.T) {
 func TestCreatesKustomizationFile(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 	})
 
@@ -84,7 +84,7 @@ func TestCreatesKustomizationFile(t *testing.T) {
 func TestCreatesDeploymentFile(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 	})
 
@@ -108,7 +108,7 @@ func TestCreatesDeploymentFile(t *testing.T) {
 func TestCreatesServiceFile(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 	})
 
@@ -132,7 +132,7 @@ func TestCreatesServiceFile(t *testing.T) {
 func TestCreatesFlagPlatformDir(t *testing.T) {
 	cmd, buf, err := setUpCommand()
 	cmd.SetArgs([]string{
-		"init",
+		"base",
 		"app",
 		"-d", "flagPlatform",
 	})
