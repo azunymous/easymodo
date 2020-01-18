@@ -26,7 +26,7 @@ var port int
 var protocol string
 
 func init() {
-	rootCmd.AddCommand(baseCmd)
+	createCmd.AddCommand(baseCmd)
 
 	baseCmd.Flags().StringVarP(&imageUri, "image", "i", "", "Set image e.g nginx:1.7.9")
 	baseCmd.Flags().IntVarP(&port, "port", "p", 8080, "Set container port")

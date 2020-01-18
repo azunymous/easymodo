@@ -23,7 +23,7 @@ kustomization options via flags`,
 var configPath string
 
 func init() {
-	rootCmd.AddCommand(overlayCmd)
+	createCmd.AddCommand(overlayCmd)
 
 	overlayCmd.PersistentFlags().StringToStringVarP(ConfigFilesFlag(), "configFile", "c", nil, "Configuration filename and file for generating config maps")
 	overlayCmd.PersistentFlags().StringVarP(&configPath, "configPath", "p", "/config/", "Configuration folder for mounting config map contents")
@@ -36,7 +36,7 @@ func init() {
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 
-func overlayCommand(cmd *cobra.Command, args []string) {
+func overlayCommand(c *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 	appName, appPort := input.GetAppName(fs.Get(), Directory())
 
@@ -49,7 +49,7 @@ func overlayCommand(cmd *cobra.Command, args []string) {
 		namespace = appName + "-" + Suffix()
 		nsDir = Suffix()
 	} else if len(args) < 1 {
-		println(cmd.UsageString())
+		println(c.UsageString())
 		log.Fatalf("No namespace or namespace suffix provided!")
 	} else {
 		namespace = args[0]

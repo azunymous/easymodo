@@ -27,6 +27,7 @@ func setUpOverlayCommand() (*cobra.Command, *bytes.Buffer, *bytes.Buffer) {
 func TestCreatesOverlayDir(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 	})
@@ -43,6 +44,7 @@ func TestCreatesOverlayDir(t *testing.T) {
 func TestCreatesOverlayKustomizationFile(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 	})
@@ -66,6 +68,7 @@ func TestCreatesOverlayKustomizationFile(t *testing.T) {
 func TestCreatesOverlayDirWithSuffix(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"-s", "suffix",
 	})
@@ -82,6 +85,7 @@ func TestCreatesOverlayDirWithSuffix(t *testing.T) {
 func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-r",
@@ -107,6 +111,7 @@ func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
 func TestCreatesOverlayIngressResourceFile(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"--ingress=example.com",
@@ -132,6 +137,7 @@ func TestCreatesOverlayIngressResourceFile(t *testing.T) {
 func TestCreatesOverlayKustomizationWithIngress(t *testing.T) {
 	cmd, buf, err := setUpOverlayCommand()
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"--ingress=example.com",
@@ -164,6 +170,7 @@ func TestCreatesOverlayDeploymentMergeWithConfigKustomization(t *testing.T) {
 configuration: test`
 
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-c", "configuration.yaml=" + configuration,
@@ -196,6 +203,7 @@ func TestCreatesProvidedConfigFile(t *testing.T) {
 configuration: test`
 
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-c",
@@ -229,6 +237,7 @@ func TestCreateOverlayDeploymentConfigMergePatch(t *testing.T) {
 configuration: test`
 
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-c",
@@ -262,6 +271,7 @@ func TestCreateOverlayDeploymentConfigMergePatchWithConfigPath(t *testing.T) {
 configuration: test`
 
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-c",
@@ -291,6 +301,7 @@ func TestCreatesOverlayDeploymentMergeWithSecretEnvKustomization(t *testing.T) {
 
 	env := `ENVIRONMENT=DEVELOPMENT`
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-e", "dev.env=" + env,
@@ -319,6 +330,7 @@ func TestCreatesProvidedSecretEnv(t *testing.T) {
 
 	env := `ENVIRONMENT=DEVELOPMENT`
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-e", "dev.env=" + env,
@@ -346,6 +358,7 @@ func TestCreatesOverlayDeploymentMergeWithSecretEnvPatch(t *testing.T) {
 
 	env := `ENVIRONMENT=DEVELOPMENT`
 	cmd.SetArgs([]string{
+		"create",
 		"overlay",
 		"app-dev",
 		"-e", "dev.env=" + env,
