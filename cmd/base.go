@@ -16,7 +16,7 @@ var baseCmd = &cobra.Command{
 	Short: "Define base kustomize YAML",
 	Long: `Generates base kustomization files for the given application name. 
 Defaults to creating a base in the platform directory.`,
-	Run:     newInitCommand,
+	Run:     newBaseCommand,
 	Args:    cobra.MinimumNArgs(1),
 	Aliases: []string{"init"},
 }
@@ -34,7 +34,7 @@ func init() {
 	baseCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
 }
 
-func newInitCommand(_ *cobra.Command, args []string) {
+func newBaseCommand(_ *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 	app := input.Application{
 		Name:          args[0],

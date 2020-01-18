@@ -16,7 +16,7 @@ var overlayCmd = &cobra.Command{
 	Long: `Defines kustomization files for an overlay. 
 This is intended for different environments e.g dev, stage or production, setting common
 kustomization options via flags`,
-	Run:  overlayCommand,
+	Run:  newOverlayCommand,
 	Args: cobra.MaximumNArgs(1),
 }
 
@@ -36,7 +36,7 @@ func init() {
 	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
 }
 
-func overlayCommand(c *cobra.Command, args []string) {
+func newOverlayCommand(c *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 	appName, appPort := input.GetAppName(fs.Get(), Directory())
 
