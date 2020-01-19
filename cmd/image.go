@@ -21,10 +21,13 @@ var imageCmd = &cobra.Command{
 	Long: `Create a kustomize overlay with a deployment patch changing the image of a container
 in a deployment.
 
+e.g easymodo modify image my-cool-app-production -i gcr.io/cool/my-app:v2.0.0
+
 Outputs the directory the version kustomization is stored.
 `,
-	Run:  newVersionCommand,
-	Args: cobra.MaximumNArgs(1),
+	Run:     newVersionCommand,
+	Args:    cobra.MaximumNArgs(1),
+	Aliases: []string{"set", "change"},
 }
 
 var w = os.Stdout
@@ -33,7 +36,7 @@ var image string
 
 func init() {
 	modifyCmd.AddCommand(imageCmd)
-	imageCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
+	imageCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for the existing namespace kustomization directory")
 
 	imageCmd.Flags().StringVarP(&image, "image", "i", "", "Image (required)")
 	_ = imageCmd.MarkFlagRequired("image")
