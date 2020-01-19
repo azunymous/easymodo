@@ -9,5 +9,6 @@ func init() {
 }
 
 func cleanup() {
+	w = os.Stdout
 	_ = os.Chdir(wd)
 }

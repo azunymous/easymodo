@@ -7,6 +7,7 @@ import (
 	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
+	"os"
 	"path"
 	"path/filepath"
 
@@ -26,14 +27,16 @@ Outputs the directory the version kustomization is stored.
 	Args: cobra.MaximumNArgs(1),
 }
 
-var version string
+var w = os.Stdout
+
+var image string
 
 func init() {
 	modifyCmd.AddCommand(imageCmd)
 	imageCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
 
-	imageCmd.Flags().StringVarP(&version, "version", "v", "", "Image version/tag (required)")
-	_ = imageCmd.MarkFlagRequired("version")
+	imageCmd.Flags().StringVarP(&image, "image", "i", "", "Image (required)")
+	_ = imageCmd.MarkFlagRequired("image")
 }
 
 func newVersionCommand(c *cobra.Command, args []string) {
@@ -59,9 +62,13 @@ func newVersionCommand(c *cobra.Command, args []string) {
 		ContainerName: appName,
 		ContainerPort: appPort,
 		Namespace:     namespace,
-		Image:         appImage,
+		Image:         image,
 		ConfigPath:    configPath,
 		Host:          Ingress(),
+	}
+
+	if appImage == image {
+		log.Fatalf("Base image is the same as the input image: %s", appImage)
 	}
 
 	relativeBasePath := filepath.Join("../", nsDir)
@@ -74,5 +81,5 @@ func newVersionCommand(c *cobra.Command, args []string) {
 	kustomization.Create(&k, resourceFiles)
 	resourceFiles.WriteAll(Directory(), nsDir+"-temp")
 	abs, _ := filepath.Abs(path.Join(Directory(), nsDir+"-temp"))
-	fmt.Println(abs)
+	_, _ = fmt.Fprintln(w, abs)
 }
