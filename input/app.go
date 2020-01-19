@@ -5,6 +5,7 @@ import (
 	"github.com/ghodss/yaml"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
+	"github.com/spf13/cobra"
 	"path"
 )
 
@@ -22,11 +23,11 @@ type Application struct {
 	ConfigPath    string
 }
 
-// GetAppName reads the base deployment file and returns the set application name and port
-func GetAppName(fs afero.Fs, dir string) (string, int) {
+// GetBaseApp reads the base deployment file and returns the set application name and port
+func GetBaseApp(fs afero.Fs, dir string) (string, string, int) {
 	df, err := afero.ReadFile(fs, path.Join(dir, "base", "deployment.yaml"))
 	if err != nil {
-		log.Fatalf("Could not open base deployment.yaml file: %v. Make sure you have a base deployment or call easymodo init", err)
+		log.Fatalf("Could not open base deployment.yaml file: %v. Make sure you have a base deployment or call easymodo create base", err)
 	}
 
 	if err != nil {
@@ -64,13 +65,34 @@ func GetAppName(fs afero.Fs, dir string) (string, int) {
 		log.Fatalf("Kubernetes resource file is not a Deployment")
 	}
 
-	log.Infof("Read base deployment file %s. Using %s as application name", deployment.Metadata.Name, deployment.Metadata.Name)
+	log.Debugf("Read base deployment file %s. Using %s as application name", deployment.Metadata.Name, deployment.Metadata.Name)
 	containers := deployment.Spec.Template.Spec.Containers
 	var port int
+	var image string
 	if len(containers) > 0 {
 		port = containers[0].Ports[0].ContainerPort
+		image = containers[0].Image
 	} else {
 		log.Warnf("Cannot determine container port from base deployment")
 	}
-	return deployment.Metadata.Name, port
+	return deployment.Metadata.Name, image, port
+}
+
+func ValidateNamespaceOrSuffix(suffix string, appName string, args []string, c *cobra.Command) (string, string) {
+	var (
+		namespace string
+		nsDir     string
+	)
+
+	if suffix != "" {
+		namespace = appName + "-" + suffix
+		nsDir = suffix
+	} else if len(args) < 1 {
+		println(c.UsageString())
+		log.Fatalf("No namespace or namespace suffix provided!")
+	} else {
+		namespace = args[0]
+		nsDir = args[0]
+	}
+	return namespace, nsDir
 }

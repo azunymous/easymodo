@@ -16,5 +16,4 @@ easymodo create overlay my-cool-app-production`,
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.PersistentFlags().StringVarP(DirectoryFlag(), "directory", "d", "platform", "directory for kustomization files and folders")
 }

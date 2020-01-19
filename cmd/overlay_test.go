@@ -16,6 +16,7 @@ import (
 func setUpOverlayCommand() (*cobra.Command, *bytes.Buffer, *bytes.Buffer) {
 	cmd, buf, err := setUpCommand()
 	_ = os.Chdir("testdata")
+	_ = os.Chdir("overlay")
 	base := afero.NewOsFs()
 	roBase := afero.NewReadOnlyFs(base)
 	ufs := afero.NewCopyOnWriteFs(roBase, afero.NewMemMapFs())
@@ -39,6 +40,7 @@ func TestCreatesOverlayDir(t *testing.T) {
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
+	cleanup()
 }
 
 func TestCreatesOverlayKustomizationFile(t *testing.T) {
@@ -63,6 +65,7 @@ func TestCreatesOverlayKustomizationFile(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayDirWithSuffix(t *testing.T) {
@@ -80,6 +83,7 @@ func TestCreatesOverlayDirWithSuffix(t *testing.T) {
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
+	cleanup()
 }
 
 func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
@@ -106,6 +110,7 @@ func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayIngressResourceFile(t *testing.T) {
@@ -132,6 +137,7 @@ func TestCreatesOverlayIngressResourceFile(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayKustomizationWithIngress(t *testing.T) {
@@ -158,6 +164,7 @@ func TestCreatesOverlayKustomizationWithIngress(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayDeploymentMergeWithConfigKustomization(t *testing.T) {
@@ -191,6 +198,7 @@ configuration: test`
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesProvidedConfigFile(t *testing.T) {
@@ -225,6 +233,7 @@ configuration: test`
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreateOverlayDeploymentConfigMergePatch(t *testing.T) {
@@ -259,6 +268,7 @@ configuration: test`
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreateOverlayDeploymentConfigMergePatchWithConfigPath(t *testing.T) {
@@ -294,6 +304,7 @@ configuration: test`
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayDeploymentMergeWithSecretEnvKustomization(t *testing.T) {
@@ -323,6 +334,7 @@ func TestCreatesOverlayDeploymentMergeWithSecretEnvKustomization(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesProvidedSecretEnv(t *testing.T) {
@@ -351,6 +363,7 @@ func TestCreatesProvidedSecretEnv(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.Equal(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesOverlayDeploymentMergeWithSecretEnvPatch(t *testing.T) {
@@ -379,4 +392,5 @@ func TestCreatesOverlayDeploymentMergeWithSecretEnvPatch(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.Equal(t, string(expect), string(actual))
+	cleanup()
 }

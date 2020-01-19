@@ -38,23 +38,9 @@ func init() {
 
 func newOverlayCommand(c *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
-	appName, appPort := input.GetAppName(fs.Get(), Directory())
+	appName, _, appPort := input.GetBaseApp(fs.Get(), Directory())
 
-	var (
-		namespace string
-		nsDir     string
-	)
-
-	if Suffix() != "" {
-		namespace = appName + "-" + Suffix()
-		nsDir = Suffix()
-	} else if len(args) < 1 {
-		println(c.UsageString())
-		log.Fatalf("No namespace or namespace suffix provided!")
-	} else {
-		namespace = args[0]
-		nsDir = args[0]
-	}
+	namespace, nsDir := input.ValidateNamespaceOrSuffix(Suffix(), appName, args, c)
 
 	k := input.Kustomization{
 		Res:       []string{},

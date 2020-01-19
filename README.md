@@ -8,26 +8,26 @@ You can use these commands both imperatively (for bootstrapping) or declarativel
 ## Usage
 `easymodo -h`
 
-`easymodo init [application name]`
+`easymodo create base [application name]`
 
-`easymodo overlay -s dev -c config.yaml="$(cat dev-config.yaml)"`
+`easymodo create overlay -s dev -c config.yaml="$(cat dev-config.yaml)"`
 
 ## Output
 
-`init` generates base deployment, service, ingress (if enabled) and kustomization resource YAMLs in the `./platform/base` directory along
+`create base` generates base deployment, service, ingress (if enabled) and kustomization resource YAMLs in the `./platform/base` directory along
 with a dev overlay.
 
 Use `easymodo init -h` to see all possible configuration flags such as setting the output directory or changing the image name.
 
-`overlay` defines a kustomization overlaying the base with a given namespace (via an argument or `-s`).
+`create overlay` defines a kustomization overlaying the base with a given namespace (via an argument or `-s`).
 
 e.g To create an overlay for namespace `my-cool-app`:
 ```shell script
-easymodo overlay my-cool-app
+easymodo create overlay my-cool-app
 ```
 Or for automatically adding a suffix to the app name:
 ```shell script
-easymodo overlay -s production
+easymodo create overlay -s production
 ```
 This will create the namespace `<app name>-production`
 

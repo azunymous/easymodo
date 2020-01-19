@@ -40,6 +40,7 @@ func TestCreatesPlatformDir(t *testing.T) {
 	stat, fErr := fs.Get().Stat(platformDirDefault)
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
+	cleanup()
 }
 
 func TestCreatesBaseDir(t *testing.T) {
@@ -57,6 +58,7 @@ func TestCreatesBaseDir(t *testing.T) {
 	stat, fErr := fs.Get().Stat(path.Join(platformDirDefault, baseDirDefault))
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
+	cleanup()
 }
 
 func TestCreatesKustomizationFile(t *testing.T) {
@@ -76,12 +78,13 @@ func TestCreatesKustomizationFile(t *testing.T) {
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "kustomization.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "base", "kustomization.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesDeploymentFile(t *testing.T) {
@@ -101,12 +104,13 @@ func TestCreatesDeploymentFile(t *testing.T) {
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "deployment.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "base", "deployment.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesServiceFile(t *testing.T) {
@@ -126,12 +130,13 @@ func TestCreatesServiceFile(t *testing.T) {
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "basic", "service.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("testdata", "base", "service.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
 	}
 	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
 }
 
 func TestCreatesFlagPlatformDir(t *testing.T) {
@@ -151,4 +156,5 @@ func TestCreatesFlagPlatformDir(t *testing.T) {
 	assert.True(t, stat.IsDir())
 
 	*DirectoryFlag() = "platform"
+	cleanup()
 }

@@ -83,3 +83,22 @@ spec:
 	}
 	return tmpl
 }
+
+func DeploymentImagePatch() *template.Template {
+	deploymentVersionPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{.ContainerName}}
+          image: {{.Image}}`
+	tmpl, err := template.New("deployment-secret").Parse(deploymentVersionPatch)
+	if err != nil {
+		panic("deploymentVersionPatch spec template is misconfigured")
+	}
+	return tmpl
+}

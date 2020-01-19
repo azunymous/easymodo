@@ -27,7 +27,7 @@ func Generate(resourceName string, template *template.Template) Generator {
 		if err != nil {
 			return errors.Wrapf(err, "Could not create %s.yaml"+resourceName)
 		}
-		log.Infof("# Generated %s\n%s", resourceName, content.String())
+		log.Debugf("# Generated %s\n%s", resourceName, content.String())
 		files.Add(resourceName+".yaml", content.String())
 		return nil
 	}
@@ -53,7 +53,7 @@ func Create(kustomization *input.Kustomization, files fs.Files) {
 	if err != nil {
 		log.Fatalf("Could not create kustomization.yaml: %v", err)
 	}
-	log.Infof("# Generated kustomization\n%s", content.String())
+	log.Debugf("# Generated kustomization\n%s", content.String())
 	files.Add("kustomization.yaml", content.String())
 
 }
