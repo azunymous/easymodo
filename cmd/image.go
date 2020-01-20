@@ -7,7 +7,6 @@ import (
 	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"os"
 	"path"
 	"path/filepath"
 
@@ -29,8 +28,6 @@ Outputs the directory the version kustomization is stored.
 	Args:    cobra.MaximumNArgs(1),
 	Aliases: []string{"set", "change"},
 }
-
-var w = os.Stdout
 
 var image string
 

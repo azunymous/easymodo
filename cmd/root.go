@@ -6,12 +6,16 @@ package cmd
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
 )
+
+// w is the default output for terminal output
+var w = os.Stdout
 
 var cfgFile string
 
@@ -35,6 +39,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
+	log.SetOutput(w)
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.easymodo.yaml)")
 	rootCmd.PersistentFlags().StringVarP(DirectoryFlag(), "directory", "d", "platform", "directory for kustomization files and folders")
