@@ -12,7 +12,7 @@ import (
 
 // baseCmd represents the base command for initializing a kustomize base.
 var baseCmd = &cobra.Command{
-	Use:   "base [application name]",
+	Use:   "base <application name>",
 	Short: "Define base kustomize YAML",
 	Long: `Generates base kustomization files for the given application name. 
 Defaults to creating a base in the platform directory.`,
