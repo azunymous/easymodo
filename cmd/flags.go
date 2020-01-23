@@ -17,6 +17,8 @@ func ResetOptionalFlags() {
 	global.namespaceResource = false
 	global.suffix = ""
 	global.ingress = ""
+	global.image = ""
+	global.output = ""
 }
 
 type Flags struct {
@@ -29,6 +31,8 @@ type Flags struct {
 	force             bool
 	ingress           string
 	replicas          int
+	image             string
+	output            string
 }
 
 func ConfigFiles() map[string]string {
@@ -93,6 +97,23 @@ func Replicas() int {
 func ReplicasFlag() *int {
 	return &global.replicas
 }
+
+func Image() string {
+	return global.image
+}
+
+func ImageFlag() *string {
+	return &global.image
+}
+
+func Output() string {
+	return global.output
+}
+
+func OutputFlag() *string {
+	return &global.output
+}
+
 func Force() bool {
 	return global.force
 }

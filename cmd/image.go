@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"path"
 	"path/filepath"
+	"regexp"
 
 	"github.com/spf13/cobra"
 )
@@ -29,24 +30,30 @@ Outputs the directory the version kustomization is stored.
 	Aliases: []string{"set", "change"},
 }
 
-var image string
-
 func init() {
 	modifyCmd.AddCommand(imageCmd)
 	imageCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for the existing namespace kustomization directory")
 
-	imageCmd.Flags().StringVarP(&image, "image", "i", "", "Image (required)")
+	imageCmd.Flags().StringVarP(ImageFlag(), "image", "i", "", "Image (required)")
 	_ = imageCmd.MarkFlagRequired("image")
+
+	imageCmd.Flags().StringVarP(OutputFlag(), "output", "o", "", "Output folder for kustomization files. Defaults to '<namespace folder name>-<version>'")
 }
 
 func newVersionCommand(c *cobra.Command, args []string) {
 	resourceFiles := fs.NewFileMap()
 	appName, appImage, appPort := input.GetBaseApp(fs.Get(), Directory())
+	outputDir := Output()
 
 	namespace, nsDir := input.ValidateNamespaceOrSuffix(Suffix(), appName, args, c)
 	_, err := afero.ReadFile(fs.Get(), path.Join(Directory(), nsDir, "kustomization.yaml"))
 	if err != nil {
 		log.Fatalf("Could not open %s kustomization.yaml file: %v.", nsDir, err)
+	}
+
+	if outputDir == "" {
+		version := parseVersion(Image())
+		outputDir = nsDir + "-" + version
 	}
 
 	k := input.Kustomization{
@@ -62,12 +69,12 @@ func newVersionCommand(c *cobra.Command, args []string) {
 		ContainerName: appName,
 		ContainerPort: appPort,
 		Namespace:     namespace,
-		Image:         image,
+		Image:         Image(),
 		ConfigPath:    configPath,
 		Host:          Ingress(),
 	}
 
-	if appImage == image {
+	if appImage == Image() {
 		log.Fatalf("Base image is the same as the input image: %s", appImage)
 	}
 
@@ -79,7 +86,17 @@ func newVersionCommand(c *cobra.Command, args []string) {
 	k.AddPatch("deployment-image-patch.yaml")
 
 	kustomization.Create(&k, resourceFiles)
-	resourceFiles.WriteAll(Directory(), nsDir+"-temp")
-	abs, _ := filepath.Abs(path.Join(Directory(), nsDir+"-temp"))
+	resourceFiles.WriteAll(Directory(), outputDir)
+	abs, _ := filepath.Abs(path.Join(Directory(), outputDir))
 	_, _ = fmt.Fprintln(w, abs)
+}
+
+var tag = regexp.MustCompile(`.+:(.+)`)
+
+func parseVersion(image string) string {
+	m := tag.FindStringSubmatch(image)
+	if len(m) < 2 {
+		return "UNKNOWN"
+	}
+	return m[1]
 }

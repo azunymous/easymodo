@@ -32,13 +32,13 @@ func TestCreatesImageOverlayDir(t *testing.T) {
 		"modify",
 		"image",
 		"app-dev",
-		"-i v1.0.0",
+		"-i app:v1.0.0",
 	})
 	_ = cmd.Execute()
 	println(buf.String())
 	println(err.String())
 
-	p := path.Join(platformDirDefault, "app-dev-temp")
+	p := path.Join(platformDirDefault, "app-dev-v1.0.0")
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.True(t, stat.IsDir())
@@ -51,18 +51,18 @@ func TestCreatesImageOverlayKustomization(t *testing.T) {
 		"modify",
 		"image",
 		"app-dev",
-		"-i v1.0.0",
+		"-i app:v1.0.0",
 	})
 	_ = cmd.Execute()
 	println(buf.String())
 	println(err.String())
 
-	p := path.Join(platformDirDefault, "app-dev-temp", "kustomization.yaml")
+	p := path.Join(platformDirDefault, "app-dev-v1.0.0", "kustomization.yaml")
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("different-image", "app-dev-temp", "kustomization.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("different-image", "app-dev-v1.0.0", "kustomization.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
@@ -77,18 +77,18 @@ func TestCreatesImageOverlayKustomizationForSuffix(t *testing.T) {
 		"modify",
 		"image",
 		"-s", "dev",
-		"-i v1.0.0",
+		"-i app:v1.0.0",
 	})
 	_ = cmd.Execute()
 	println(buf.String())
 	println(err.String())
 
-	p := path.Join(platformDirDefault, "dev-temp", "kustomization.yaml")
+	p := path.Join(platformDirDefault, "dev-v1.0.0", "kustomization.yaml")
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("different-image-suffix", "dev-temp", "kustomization.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("different-image-suffix", "dev-v1.0.0", "kustomization.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
@@ -109,12 +109,12 @@ func TestCreatesImageOverlayPatch(t *testing.T) {
 	println(buf.String())
 	println(err.String())
 
-	p := path.Join(platformDirDefault, "app-dev-temp", "deployment-image-patch.yaml")
+	p := path.Join(platformDirDefault, "app-dev-v1.0.0", "deployment-image-patch.yaml")
 	stat, fErr := fs.Get().Stat(p)
 	assert.Nil(t, fErr)
 	assert.False(t, stat.IsDir())
 
-	expect, _ := ioutil.ReadFile(filepath.Join("different-image", "app-dev-temp", "deployment-image-patch.yaml"))
+	expect, _ := ioutil.ReadFile(filepath.Join("different-image", "app-dev-v1.0.0", "deployment-image-patch.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
@@ -136,6 +136,44 @@ func TestOutputsImageOverlayDirectory(t *testing.T) {
 	w = f
 	_ = cmd.Execute()
 	out, _ := ioutil.ReadFile(f.Name())
-	assert.Equal(t, path.Join(wd, "testdata", "image", "platform", "app-dev-temp"), strings.TrimSpace(string(out)))
+	assert.Equal(t, path.Join(wd, "testdata", "image", "platform", "app-dev-v1.0.0"), strings.TrimSpace(string(out)))
+	cleanup()
+}
+
+func TestCreatesImageOverlayDirForUnknownVersion(t *testing.T) {
+	cmd, buf, err := setUpImageCommand()
+	cmd.SetArgs([]string{
+		"modify",
+		"image",
+		"app-dev",
+		"-i appWithNoVersion.com/my/cool/app",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev-UNKNOWN")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.True(t, stat.IsDir())
+	cleanup()
+}
+
+func TestCreatesImageOverlayDirForAlphabeticalVersion(t *testing.T) {
+	cmd, buf, err := setUpImageCommand()
+	cmd.SetArgs([]string{
+		"modify",
+		"image",
+		"app-dev",
+		"-i appWithVersion.com/app:latest",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev-latest")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.True(t, stat.IsDir())
 	cleanup()
 }
