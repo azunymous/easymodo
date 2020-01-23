@@ -92,7 +92,7 @@ func TestCreatesOverlayNamespaceResourceFile(t *testing.T) {
 		"create",
 		"overlay",
 		"app-dev",
-		"-r",
+		"-n",
 	})
 
 	_ = cmd.Execute()
@@ -392,5 +392,33 @@ func TestCreatesOverlayDeploymentMergeWithSecretEnvPatch(t *testing.T) {
 		t.Fatal(fErr)
 	}
 	assert.Equal(t, string(expect), string(actual))
+	cleanup()
+}
+
+func TestCreateOverlayDeploymentReplicaMergePatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	cmd.SetArgs([]string{
+		"create",
+		"overlay",
+		"app-dev",
+		"-r", "2",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-replica-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-replicas", "app-dev", "deployment-replica-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
 	cleanup()
 }

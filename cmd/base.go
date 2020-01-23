@@ -44,6 +44,7 @@ func newBaseCommand(_ *cobra.Command, args []string) {
 		ContainerPort: port,
 		Protocol:      "TCP",
 		Host:          Ingress(),
+		Replicas:      1,
 	}
 
 	log.Infof("initializing current directory for application %s", app.Name)

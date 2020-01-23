@@ -31,9 +31,10 @@ func init() {
 	overlayCmd.PersistentFlags().StringToStringVarP(SecretEnvsFlag(), "secretEnv", "e", nil, "Secret .env filename and env file for generating secrets")
 
 	overlayCmd.Flags().StringVar(IngressFlag(), "ingress", "", "Enable ingress resource generation with given host")
+	overlayCmd.Flags().IntVarP(ReplicasFlag(), "replicas", "r", 1, "Enable ingress resource generation with given host")
 
 	overlayCmd.PersistentFlags().StringVarP(SuffixFlag(), "suffix", "s", "", "Suffix to use for namespace for overlay")
-	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "resource", "r", false, "Create namespace resource")
+	overlayCmd.Flags().BoolVarP(NamespaceResourceFlag(), "namespace-resource", "n", false, "Create namespace resource")
 }
 
 func newOverlayCommand(c *cobra.Command, args []string) {
@@ -57,6 +58,7 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 		Namespace:     namespace,
 		ConfigPath:    configPath,
 		Host:          Ingress(),
+		Replicas:      Replicas(),
 	}
 
 	relativeBasePath := filepath.Join("../", "base")
@@ -80,6 +82,15 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 			log.Warnf("Could not create ingress: %v", err)
 		} else {
 			k.AddResource("ingress.yaml")
+		}
+	}
+
+	if Replicas() != 1 {
+		err := kustomization.Generate("deployment-replica-patch", kustomization.DeploymentReplicaPatch())(application, resourceFiles)
+		if err != nil {
+			log.Fatalf("Could not create replica patch %v", err)
+		} else {
+			k.AddPatch("deployment-replica-patch.yaml")
 		}
 	}
 

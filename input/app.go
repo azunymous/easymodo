@@ -21,6 +21,7 @@ type Application struct {
 	Protocol      string
 	Host          string
 	ConfigPath    string
+	Replicas      int
 }
 
 // GetBaseApp reads the base deployment file and returns the set application name and port

@@ -28,6 +28,7 @@ type Flags struct {
 	namespaceResource bool
 	force             bool
 	ingress           string
+	replicas          int
 }
 
 func ConfigFiles() map[string]string {
@@ -85,7 +86,13 @@ func Ingress() string {
 func IngressFlag() *string {
 	return &global.ingress
 }
+func Replicas() int {
+	return global.replicas
+}
 
+func ReplicasFlag() *int {
+	return &global.replicas
+}
 func Force() bool {
 	return global.force
 }

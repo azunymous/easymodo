@@ -96,9 +96,26 @@ spec:
       containers:
         - name: {{.ContainerName}}
           image: {{.Image}}`
+
 	tmpl, err := template.New("deployment-secret").Parse(deploymentVersionPatch)
 	if err != nil {
 		panic("deploymentVersionPatch spec template is misconfigured")
+	}
+	return tmpl
+}
+
+func DeploymentReplicaPatch() *template.Template {
+	deploymentReplicaPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  replicas: {{.Replicas}}`
+
+	tmpl, err := template.New("deployment-replica").Parse(deploymentReplicaPatch)
+	if err != nil {
+		panic("deploymentReplicaPatch spec template is misconfigured")
 	}
 	return tmpl
 }
