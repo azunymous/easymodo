@@ -422,3 +422,31 @@ func TestCreateOverlayDeploymentReplicaMergePatch(t *testing.T) {
 	assert.YAMLEq(t, string(expect), string(actual))
 	cleanup()
 }
+
+func TestCreatesOverlayIngressResourceFileWithDifferentServicePort(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+	cmd.SetArgs([]string{
+		"create",
+		"overlay",
+		"app-dev",
+		"--ingress=example.com",
+		"-d=platform-with-different-service-port",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("platform-with-different-service-port", "app-dev", "ingress.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-ingress-with-different-service-port", "app-dev", "ingress.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
