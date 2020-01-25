@@ -6,7 +6,6 @@ import (
 	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"os"
 	"path"
 	"path/filepath"
 )
@@ -63,17 +62,21 @@ func newGroupCommand(c *cobra.Command, args []string) {
 
 func getRelativePathFor(baseDir string, kustomizeDir string) string {
 	base := baseDir
-	if base == "." {
-		wd, err := os.Getwd()
-		if err != nil {
-			log.Fatalf("Cannot get working directory %v", err)
-		}
-		log.Infof("Using working directory %s", wd)
-		base = wd
+	if !path.IsAbs(base) {
+		base = getFullDirPath(base)
 	}
 	rel, err := filepath.Rel(base, kustomizeDir)
 	if err != nil {
 		log.Fatalf("Cannot calculate relative path from %s to %s due to %v", baseDir, kustomizeDir, err)
 	}
 	return rel
+}
+
+func getFullDirPath(d string) string {
+	wd, err := filepath.Abs(d)
+	if err != nil {
+		log.Fatalf("Cannot get absolute path to output directory %v", err)
+	}
+	log.Infof("Using output directory %s", wd)
+	return wd
 }
