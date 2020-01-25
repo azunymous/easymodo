@@ -18,6 +18,7 @@ func ResetOptionalFlags() {
 	global.suffix = ""
 	global.ingress = ""
 	global.image = ""
+	global.kustomizations = []string{}
 	global.output = ""
 }
 
@@ -32,6 +33,7 @@ type Flags struct {
 	ingress           string
 	replicas          int
 	image             string
+	kustomizations    []string
 	output            string
 }
 
@@ -104,6 +106,13 @@ func Image() string {
 
 func ImageFlag() *string {
 	return &global.image
+}
+func Kustomizations() []string {
+	return global.kustomizations
+}
+
+func KustomizationsFlag() *[]string {
+	return &global.kustomizations
 }
 
 func Output() string {
