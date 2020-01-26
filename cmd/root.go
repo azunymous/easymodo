@@ -26,6 +26,7 @@ var rootCmd = &cobra.Command{
 	Long: `easymodo is a tool to quickly create Kubernetes resource files 
 for local and remote development by creating configuration YAML for kustomize`,
 	TraverseChildren: true,
+	Version:          "0.0.1",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

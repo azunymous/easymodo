@@ -7,9 +7,12 @@ and service resources that are suitable for many applications and you can overla
 configuration/secret mounting per environment.
 
 - `create` commands are useful for bootstrapping and then changing to suit your needs.
-- `modify` commands can be used predeploy such as for changing the version of the container.
+- `modify` commands can be used predeploy such as for changing the version or image of your 
+application container.
+- `group` creates a kustomization with other kustomization folders. 
 
-You can use these commands both imperatively (for bootstrapping) or declarative (hooking into another build tool or applying the created resources immediately).
+You can use these commands both imperatively (for bootstrapping) or declarative 
+(hooking into another build tool or applying the created resources immediately).
 
 
 ## Usage
@@ -20,6 +23,8 @@ You can use these commands both imperatively (for bootstrapping) or declarative 
 `easymodo create overlay -s dev -c config.yaml="$(cat dev-config.yaml)"`
 
 `easymodo modify image -s dev -i web-app:v1.2.3`
+
+`easymodo group -k api/platform/dev -k redis/platform/dev `
 
 ## Output
 
@@ -70,4 +75,20 @@ easymodo modify image -s dev -i gcr.io/dev/app:v1.2.3
 This can then be deployed inline:
 ```shell script
 easymodo modify image app-dev -i gcr.io/my-project/dev/app:v1.2.3 | xargs kustomize build | kubectl apply -f - 
+```
+
+### Group
+`group` creates a kustomization consisting of other kustomizations. The output folder can be configured,
+defaulting to the current working directory.
+
+Create a kustomization with your development api and database:
+```shell script
+easymodo group -k api/platform/dev -k redis/platform/dev
+```
+
+Example of grouping development deployment and mocks, deploying and then running functional tests.
+```shell script
+easymodo group -k api/platform/dev-v1.2.3 -k mocks/platform/dev -o ./release/functional-test
+kustomize build ./release/functional-test | kubectl apply -f -
+./run-functional-tests.sh
 ```

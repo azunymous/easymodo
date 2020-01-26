@@ -63,6 +63,10 @@ func newGroupCommand(_ *cobra.Command, _ []string) {
 		}
 		if path.IsAbs(kFolder) {
 			kFolder = getRelativePathFor(outputDir, kFolder)
+		} else if !path.IsAbs(outputDir) {
+			tempOutput, _ := filepath.Abs(outputDir)
+			tempKFolder, _ := filepath.Abs(kFolder)
+			kFolder = getRelativePathFor(tempOutput, tempKFolder)
 		}
 		k.AddResource(kFolder)
 	}

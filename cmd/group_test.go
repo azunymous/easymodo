@@ -98,10 +98,6 @@ func TestCreatesGroupKustomizationWithAbsPathFromDifferentRelativeOutputDirector
 	cleanup()
 }
 
-/* N.B. If the output directory is absolute but the input directory is relative, the input directory
-is not modified and the input is trusted to be relative to the output.
-This also applies when both paths are relative.
-*/
 func TestCreatesGroupKustomizationWithAbsPathAndAbsoluteOutputDirectory(t *testing.T) {
 	cmd, buf, err := setUpGroupCommand()
 	cmd.SetArgs([]string{
@@ -119,6 +115,31 @@ func TestCreatesGroupKustomizationWithAbsPathAndAbsoluteOutputDirectory(t *testi
 	assert.False(t, stat.IsDir())
 
 	expect, _ := ioutil.ReadFile(filepath.Join("group-dev-abs-output", "kustomization.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
+
+func TestCreatesGroupKustomizationWithRelativePathAndRelativeOutputDirectory(t *testing.T) {
+	cmd, buf, err := setUpGroupCommand()
+	cmd.SetArgs([]string{
+		"group",
+		"-k", "platform/dev",
+		"-o", "../release",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("../release/kustomization.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("group-dev-relative-output", "kustomization.yaml"))
 	actual, fErr := afero.ReadFile(fs.Get(), p)
 	if fErr != nil {
 		t.Fatal(fErr)
