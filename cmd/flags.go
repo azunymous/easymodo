@@ -12,6 +12,8 @@ var global = Flags{
 // ResetOptionalFlags is for resetting the flags. This is for testing purposes, when a command will
 // called multiple times from a test.
 func ResetOptionalFlags() {
+	global.directory = "platform"
+
 	global.configFiles = map[string]string{}
 	global.secretEnvs = map[string]string{}
 	global.namespaceResource = false
@@ -20,6 +22,8 @@ func ResetOptionalFlags() {
 	global.ingress = ""
 	global.image = ""
 	global.kustomizations = []string{}
+	global.limits = map[string]string{}
+	global.requests = map[string]string{}
 	global.output = ""
 }
 
@@ -35,6 +39,8 @@ type Flags struct {
 	replicas          int
 	image             string
 	kustomizations    []string
+	limits            map[string]string
+	requests          map[string]string
 	output            string
 }
 
@@ -130,4 +136,20 @@ func Verify() bool {
 
 func VerifyFlag() *bool {
 	return &global.verify
+}
+
+func Limits() map[string]string {
+	return global.limits
+}
+
+func LimitsFlag() *map[string]string {
+	return &global.limits
+}
+
+func Requests() map[string]string {
+	return global.requests
+}
+
+func RequestsFlag() *map[string]string {
+	return &global.requests
 }

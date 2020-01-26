@@ -12,16 +12,20 @@ import (
 // Application defines the struct for a single application and possible configuration that would be
 // required for a deployment.
 type Application struct {
-	Name          string
-	Namespace     string
-	Stateful      bool
-	Image         string
-	ContainerName string
-	ContainerPort int
-	Protocol      string
-	Host          string
-	ConfigPath    string
-	Replicas      int
+	Name           string
+	Namespace      string
+	Stateful       bool
+	Image          string
+	ContainerName  string
+	ContainerPort  int
+	Protocol       string
+	Host           string
+	ConfigPath     string
+	Replicas       int
+	CpuRequests    string
+	MemoryRequests string
+	CpuLimits      string
+	MemoryLimits   string
 }
 
 // GetBaseApp reads the base deployment file and returns the set application name and port

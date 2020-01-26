@@ -119,3 +119,55 @@ spec:
 	}
 	return tmpl
 }
+
+func DeploymentLimitsPatch() *template.Template {
+	deploymentLimitsPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{.ContainerName}}
+          resources:
+            limits:
+{{- if .CpuLimits}}
+              cpu: {{.CpuLimits}}{{- end}}
+{{- if .MemoryLimits}}
+              memory: {{.MemoryLimits}}{{- end}}
+`
+
+	tmpl, err := template.New("deployment-limits").Parse(deploymentLimitsPatch)
+	if err != nil {
+		panic("deploymentLimitsPatch spec template is misconfigured")
+	}
+	return tmpl
+}
+
+func DeploymentRequestsPatch() *template.Template {
+	deploymentRequestsPatch :=
+		`apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Name}}
+spec:
+  template:
+    spec:
+      containers:
+        - name: {{.ContainerName}}
+          resources:
+            requests:
+{{- if .CpuRequests}}
+              cpu: {{.CpuRequests}}{{- end}}
+{{- if .MemoryRequests}}
+              memory: {{.MemoryRequests}}{{- end}}
+`
+
+	tmpl, err := template.New("deployment-limits").Parse(deploymentRequestsPatch)
+	if err != nil {
+		panic("deploymentRequestsPatch spec template is misconfigured")
+	}
+	return tmpl
+}

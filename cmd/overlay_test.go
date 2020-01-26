@@ -450,3 +450,100 @@ func TestCreatesOverlayIngressResourceFileWithDifferentServicePort(t *testing.T)
 	assert.YAMLEq(t, string(expect), string(actual))
 	cleanup()
 }
+
+func TestCreateOverlayDeploymentResourceRequestPatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	cmd.SetArgs([]string{
+		"create",
+		"overlay",
+		"app-dev",
+		"--requests", "cpu=100m,memory=250Mi",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-requests-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-requests", "app-dev", "deployment-requests-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
+
+func TestCreateOverlayDeploymentResourceLimitsPatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	cmd.SetArgs([]string{
+		"create",
+		"overlay",
+		"app-dev",
+		"--limits", "cpu=100m,memory=250Mi",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join(platformDirDefault, "app-dev", "deployment-limits-patch.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-limits", "app-dev", "deployment-limits-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
+
+func TestCreateOverlayDeploymentMemoryResourceLimitsPatch(t *testing.T) {
+	cmd, buf, err := setUpOverlayCommand()
+
+	cmd.SetArgs([]string{
+		"create",
+		"overlay",
+		"app-dev",
+		"--requests", "memory=500Mi",
+		"--limits", "memory=1Gi",
+	})
+
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	pR := path.Join(platformDirDefault, "app-dev", "deployment-requests-patch.yaml")
+	stat, fErr := fs.Get().Stat(pR)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	pL := path.Join(platformDirDefault, "app-dev", "deployment-limits-patch.yaml")
+	stat, fErr = fs.Get().Stat(pL)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("overlayed-with-memory-resources", "app-dev", "deployment-requests-patch.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), pR)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+
+	expect, _ = ioutil.ReadFile(filepath.Join("overlayed-with-memory-resources", "app-dev", "deployment-limits-patch.yaml"))
+	actual, fErr = afero.ReadFile(fs.Get(), pL)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
