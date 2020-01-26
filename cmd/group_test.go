@@ -151,3 +151,65 @@ func TestCreatesGroupKustomizationWithMultipleFiles(t *testing.T) {
 	assert.YAMLEq(t, string(expect), string(actual))
 	cleanup()
 }
+
+func TestCreatesGroupKustomizationPassesWithVerifcationForMultipleFiles(t *testing.T) {
+	cmd, buf, err := setUpGroupCommand()
+	cmd.SetArgs([]string{
+		"group",
+		"-k", "platform/dev",
+		"-k", path.Join(wd, "testdata", "group", "platform", "app-dev"),
+		"-v",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("kustomization.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("group-dev-multiple", "kustomization.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}
+
+func TestCreatesGroupKustomizationFailsWithVerification(t *testing.T) {
+	cmd, buf, err := setUpGroupCommand()
+	cmd.SetArgs([]string{
+		"group",
+		"-k", "platform/does-not-exist",
+		"-v",
+	})
+
+	assert.Panics(t, func() { _ = cmd.Execute() }, "The command did not panic")
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("kustomization.yaml")
+	_, fErr := fs.Get().Stat(p)
+	assert.NotNil(t, fErr)
+	cleanup()
+}
+
+func TestCreatesGroupKustomizationFailsWithFile(t *testing.T) {
+	cmd, buf, err := setUpGroupCommand()
+	cmd.SetArgs([]string{
+		"group",
+		"-k", "platform/dev/kustomization.yaml",
+		"-v",
+	})
+
+	assert.Panics(t, func() { _ = cmd.Execute() }, "The command did not panic")
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("kustomization.yaml")
+	_, fErr := fs.Get().Stat(p)
+	assert.NotNil(t, fErr)
+	cleanup()
+}

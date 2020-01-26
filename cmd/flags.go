@@ -6,7 +6,7 @@ Features self described functions for getting these values and functions with th
 getting the pointer to these values.
 */
 var global = Flags{
-	force: false,
+	verify: false,
 }
 
 // ResetOptionalFlags is for resetting the flags. This is for testing purposes, when a command will
@@ -16,6 +16,7 @@ func ResetOptionalFlags() {
 	global.secretEnvs = map[string]string{}
 	global.namespaceResource = false
 	global.suffix = ""
+	global.verify = false
 	global.ingress = ""
 	global.image = ""
 	global.kustomizations = []string{}
@@ -29,7 +30,7 @@ type Flags struct {
 	suffix            string
 	namespace         string
 	namespaceResource bool
-	force             bool
+	verify            bool
 	ingress           string
 	replicas          int
 	image             string
@@ -123,10 +124,10 @@ func OutputFlag() *string {
 	return &global.output
 }
 
-func Force() bool {
-	return global.force
+func Verify() bool {
+	return global.verify
 }
 
-func ForceFlag() *bool {
-	return &global.force
+func VerifyFlag() *bool {
+	return &global.verify
 }

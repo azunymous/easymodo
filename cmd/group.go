@@ -5,6 +5,7 @@ import (
 	"github.com/azunymous/easymodo/input"
 	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"path"
 	"path/filepath"
@@ -33,10 +34,11 @@ func init() {
 	_ = groupCmd.MarkFlagDirname("kustomization")
 	_ = groupCmd.MarkFlagRequired("kustomization")
 
-	groupCmd.Flags().StringVarP(OutputFlag(), "output", "o", ".", "Output folder for kustomization file.")
+	groupCmd.Flags().BoolVarP(VerifyFlag(), "verify", "v", false, "Verify kustomizations exist")
+	groupCmd.Flags().StringVarP(OutputFlag(), "output", "o", ".", "Output folder for kustomization file")
 }
 
-func newGroupCommand(c *cobra.Command, args []string) {
+func newGroupCommand(_ *cobra.Command, _ []string) {
 	resourceFiles := fs.NewFileMap()
 	outputDir := path.Clean(Output())
 
@@ -49,6 +51,16 @@ func newGroupCommand(c *cobra.Command, args []string) {
 
 	for _, kFolder := range Kustomizations() {
 		kFolder = path.Clean(kFolder)
+		if Verify() {
+			exists, err := afero.DirExists(fs.Get(), kFolder)
+			if err != nil {
+				log.Fatalf("Error looking for directory %s: %v", kFolder, err)
+			}
+			if !exists {
+				log.Errorf("%s does not exist or is not a directory", kFolder)
+				panic(1)
+			}
+		}
 		if path.IsAbs(kFolder) {
 			kFolder = getRelativePathFor(outputDir, kFolder)
 		}
