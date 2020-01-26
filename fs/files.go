@@ -14,6 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"path"
+	"sort"
 )
 
 // Interface Files is a store of files to be written to the file system
@@ -65,6 +66,7 @@ func (f *FileMap) GetFilenames() []string {
 	for name := range f.files {
 		fileNames = append(fileNames, name)
 	}
+	sort.Strings(fileNames)
 	return fileNames
 }
 
