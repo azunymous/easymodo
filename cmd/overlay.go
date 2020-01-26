@@ -77,27 +77,7 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 		}
 	}
 
-	if len(Requests()) > 0 {
-		setContainerResource(Requests(), "cpu", &application.CpuRequests)
-		setContainerResource(Requests(), "memory", &application.MemoryRequests)
-		err := kustomization.Generate("deployment-requests-patch", kustomization.DeploymentRequestsPatch())(application, resourceFiles)
-		if err != nil {
-			log.Warnf("Could not create request patch: %v", err)
-		} else {
-			k.AddPatch("deployment-requests-patch.yaml")
-		}
-	}
-	if len(Limits()) > 0 {
-		setContainerResource(Limits(), "cpu", &application.CpuLimits)
-		setContainerResource(Limits(), "memory", &application.MemoryLimits)
-		err := kustomization.Generate("deployment-limits-patch", kustomization.DeploymentLimitsPatch())(application, resourceFiles)
-		if err != nil {
-			log.Warnf("Could not create limits patch: %v", err)
-		} else {
-			k.AddPatch("deployment-limits-patch.yaml")
-		}
-	}
-
+	addContainerResourceGenerator(application, resourceFiles, &k)
 	addConfigGenerator(application, resourceFiles, &k, appName)
 	addSecretGenerator(application, resourceFiles, &k, appName)
 
@@ -122,6 +102,29 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 	kustomization.Create(&k, resourceFiles)
 	resourceFiles.WriteAll(Directory(), nsDir)
 
+}
+
+func addContainerResourceGenerator(application input.Application, resourceFiles fs.Files, k *input.Kustomization) {
+	if len(Requests()) > 0 {
+		setContainerResource(Requests(), "cpu", &application.CpuRequests)
+		setContainerResource(Requests(), "memory", &application.MemoryRequests)
+		err := kustomization.Generate("deployment-requests-patch", kustomization.DeploymentRequestsPatch())(application, resourceFiles)
+		if err != nil {
+			log.Warnf("Could not create request patch: %v", err)
+		} else {
+			k.AddPatch("deployment-requests-patch.yaml")
+		}
+	}
+	if len(Limits()) > 0 {
+		setContainerResource(Limits(), "cpu", &application.CpuLimits)
+		setContainerResource(Limits(), "memory", &application.MemoryLimits)
+		err := kustomization.Generate("deployment-limits-patch", kustomization.DeploymentLimitsPatch())(application, resourceFiles)
+		if err != nil {
+			log.Warnf("Could not create limits patch: %v", err)
+		} else {
+			k.AddPatch("deployment-limits-patch.yaml")
+		}
+	}
 }
 
 func addConfigGenerator(application input.Application, resourceFiles fs.Files, k *input.Kustomization, appName string) {
