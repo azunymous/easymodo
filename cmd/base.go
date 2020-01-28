@@ -47,7 +47,7 @@ func newBaseCommand(_ *cobra.Command, args []string) {
 		Replicas:      1,
 	}
 
-	log.Infof("initializing current directory for application %s", app.Name)
+	log.Infof("Initializing current directory for application %s", app.Name)
 
 	createDirectory()
 
