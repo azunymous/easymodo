@@ -22,9 +22,8 @@ dependencies.
 Specified files are expected to be available relative to the output directory.
 '
 `,
-	Run:     newGroupCommand,
-	Args:    cobra.NoArgs,
-	Aliases: []string{"set", "change"},
+	Run:  newGroupCommand,
+	Args: cobra.NoArgs,
 }
 
 func init() {
