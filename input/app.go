@@ -28,7 +28,7 @@ type Application struct {
 	MemoryLimits   string
 }
 
-// GetBaseApp reads the base deployment file and returns the set application name and port
+// GetBaseApp reads the base deployment file and returns the set application name, image and port
 func GetBaseApp(fs afero.Fs, dir string) (string, string, int) {
 	df, err := afero.ReadFile(fs, path.Join(dir, "base", "deployment.yaml"))
 	if err != nil {
