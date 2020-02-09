@@ -177,3 +177,52 @@ func TestCreatesImageOverlayDirForAlphabeticalVersion(t *testing.T) {
 	assert.True(t, stat.IsDir())
 	cleanup()
 }
+
+func TestCreatesImageOverlayDirWithContext(t *testing.T) {
+	cmd, buf, err := setUpImageCommand()
+	cmd.SetArgs([]string{
+		"modify",
+		"image",
+		"-s", "dev",
+		"-i app:v1.0.0",
+		"-d", "platform-with-context",
+		"--context", "usa",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("platform-with-context", "usa", "dev-v1.0.0")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.True(t, stat.IsDir())
+	cleanup()
+}
+
+func TestCreatesImageOverlayKustomizationWithContext(t *testing.T) {
+	cmd, buf, err := setUpImageCommand()
+	cmd.SetArgs([]string{
+		"modify",
+		"image",
+		"-s", "dev",
+		"-i app:v1.0.0",
+		"-d", "platform-with-context",
+		"--context", "usa",
+	})
+	_ = cmd.Execute()
+	println(buf.String())
+	println(err.String())
+
+	p := path.Join("platform-with-context", "usa", "dev-v1.0.0", "kustomization.yaml")
+	stat, fErr := fs.Get().Stat(p)
+	assert.Nil(t, fErr)
+	assert.False(t, stat.IsDir())
+
+	expect, _ := ioutil.ReadFile(filepath.Join("different-image-with-context", "usa", "dev-v1.0.0", "kustomization.yaml"))
+	actual, fErr := afero.ReadFile(fs.Get(), p)
+	if fErr != nil {
+		t.Fatal(fErr)
+	}
+	assert.YAMLEq(t, string(expect), string(actual))
+	cleanup()
+}

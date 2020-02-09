@@ -72,7 +72,7 @@ func (f *FileMap) GetFilenames() []string {
 
 // WriteAll creates the given directory and writes all provided files to it.
 func (f *FileMap) WriteAll(directory, subDir string) {
-	_ = appFs.Mkdir(path.Join(directory, subDir), 0755)
+	_ = appFs.MkdirAll(path.Join(directory, subDir), 0755)
 
 	_ = f.write(appFs, directory, subDir)
 }

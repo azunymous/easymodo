@@ -44,6 +44,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.easymodo.yaml)")
 	rootCmd.PersistentFlags().StringVarP(DirectoryFlag(), "directory", "d", "platform", "directory for kustomization files and folders")
+	rootCmd.PersistentFlags().StringVar(ContextFlag(), "context", "", "kubectl context for kustomization files and folders")
 }
 
 // initConfig reads in config file and ENV variables if set.

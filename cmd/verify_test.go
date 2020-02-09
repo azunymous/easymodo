@@ -31,3 +31,14 @@ func TestVerifiesKustomization(t *testing.T) {
 	assert.NotPanics(t, func() { _ = cmd.Execute() })
 	cleanup()
 }
+
+func TestVerifiesKustomizationWithContext(t *testing.T) {
+	cmd, _, _ := setUpVerifyCommand()
+	cmd.SetArgs([]string{
+		"verify",
+		"-d", "platform-with-context",
+	})
+
+	assert.NotPanics(t, func() { _ = cmd.Execute() })
+	cleanup()
+}

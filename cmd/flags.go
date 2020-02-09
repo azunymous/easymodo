@@ -13,6 +13,7 @@ var global = Flags{
 // called multiple times from a test.
 func ResetOptionalFlags() {
 	global.directory = "platform"
+	global.context = ""
 
 	global.configFiles = map[string]string{}
 	global.secretEnvs = map[string]string{}
@@ -20,6 +21,7 @@ func ResetOptionalFlags() {
 	global.suffix = ""
 	global.verify = false
 	global.ingress = ""
+	global.replicas = 1
 	global.image = ""
 	global.kustomizations = []string{}
 	global.limits = map[string]string{}
@@ -31,6 +33,7 @@ type Flags struct {
 	configFiles       map[string]string
 	secretEnvs        map[string]string
 	directory         string
+	context           string
 	suffix            string
 	namespace         string
 	namespaceResource bool
@@ -66,6 +69,14 @@ func Directory() string {
 
 func DirectoryFlag() *string {
 	return &global.directory
+}
+
+func Context() string {
+	return global.context
+}
+
+func ContextFlag() *string {
+	return &global.context
 }
 
 func Suffix() string {

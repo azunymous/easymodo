@@ -1,5 +1,5 @@
 # TODO
-- [ ] Verify directory structure and all environments are buildable
+- [ ] Make output directory for image command used to calculate relative path for base directory
 - [ ] Use image kustomize feature instead of deployment patch for image command via flag
 - [ ] Document exported functions and packages for resource templates
 - [ ] Generate kustomization resource templates and Go code
@@ -9,7 +9,7 @@
 
 ---
 # Cluster based directory structure
-- [ ] Implement cluster based directory structure
+- [x] Implement cluster based directory structure
 
 Currently, easymodo assumes and creates a flat structure inside the platform directory.
 ```
@@ -52,3 +52,7 @@ some cases and vast differences in others, making the folder structure more comp
      ├── stage/
      └── prod/
 ```
+
+Does not work well if the clusters vary significantly and if they require their own base. As the
+overlay command is primarily concerned with bootstrapping, this can be considered a manual change 
+that may be required.

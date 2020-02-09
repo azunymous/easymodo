@@ -15,9 +15,8 @@ import (
 var verifyCmd = &cobra.Command{
 	Use:   "verify",
 	Short: "Verify kustomizations and directory structure",
-	Long: `Verify kustomization files correctly build, and the directory structure is followed for
-a flat single cluster platform directory.
-
+	Long: `Verify kustomization files correctly build.
+This command will build all kustomizations in the provided directory (default: platform).
 
 Kustomize must be installed. kubectl kustomize is not currently supported.
 `,
@@ -50,6 +49,11 @@ func newVerifyCommand(_ *cobra.Command, _ []string) {
 func returnWalkFunc() filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() || path == Directory() {
+			return nil
+		}
+
+		if kustExists, err := afero.Exists(fs.Get(), filepath.Join(path, "kustomization.yaml")); !kustExists && err == nil {
+			log.Infof("Treating %s as context directory", path)
 			return nil
 		}
 

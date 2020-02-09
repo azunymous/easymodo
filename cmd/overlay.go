@@ -6,6 +6,7 @@ import (
 	"github.com/azunymous/easymodo/kustomization"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"path"
 	"path/filepath"
 )
 
@@ -65,8 +66,7 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 		Replicas:      Replicas(),
 	}
 
-	relativeBasePath := filepath.Join("../", "base")
-	k.AddResource(relativeBasePath)
+	k.AddResource(relativeBasePath())
 
 	if NamespaceResource() {
 		err := kustomization.Generate("namespace", kustomization.Namespace())(input.Application{Namespace: namespace}, resourceFiles)
@@ -100,7 +100,7 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 	}
 
 	kustomization.Create(&k, resourceFiles)
-	resourceFiles.WriteAll(Directory(), nsDir)
+	resourceFiles.WriteAll(Directory(), addContext(nsDir))
 
 }
 
@@ -169,4 +169,19 @@ func setContainerResource(m map[string]string, cpuOrMemory string, valuePtr *str
 	if val, ok := m[cpuOrMemory]; ok {
 		*valuePtr = val
 	}
+}
+
+//
+// Context specific, should be moved
+//
+
+func relativeBasePath() string {
+	if Context() == "" {
+		return filepath.Join("../", "base")
+	}
+	return filepath.Join("../../", "base")
+}
+
+func addContext(dir string) string {
+	return path.Join(Context(), dir)
 }
