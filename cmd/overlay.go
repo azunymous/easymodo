@@ -100,7 +100,7 @@ func newOverlayCommand(c *cobra.Command, args []string) {
 	}
 
 	kustomization.Create(&k, resourceFiles)
-	resourceFiles.WriteAll(Directory(), addContext(nsDir))
+	resourceFiles.WriteAll(Directory(), path.Join(Context(), nsDir))
 
 }
 
@@ -180,8 +180,4 @@ func relativeBasePath() string {
 		return filepath.Join("../", "base")
 	}
 	return filepath.Join("../../", "base")
-}
-
-func addContext(dir string) string {
-	return path.Join(Context(), dir)
 }

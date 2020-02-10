@@ -46,14 +46,14 @@ func newVersionCommand(c *cobra.Command, args []string) {
 	outputDir := Output()
 
 	namespace, nsDir := input.ValidateNamespaceOrSuffix(Suffix(), appName, args, c)
-	_, err := afero.ReadFile(fs.Get(), path.Join(Directory(), addContext(nsDir), "kustomization.yaml"))
+	_, err := afero.ReadFile(fs.Get(), path.Join(Directory(), Context(), nsDir, "kustomization.yaml"))
 	if err != nil {
 		log.Fatalf("Could not open %s kustomization.yaml file: %v.", nsDir, err)
 	}
 
 	if outputDir == "" {
 		version := parseVersion(Image())
-		outputDir = addContext(nsDir + "-" + version)
+		outputDir = path.Join(Context(), nsDir+"-"+version)
 	}
 
 	k := input.Kustomization{
